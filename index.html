@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CYTOS_OS // HODEN & SPERMATOGENESE</title>
+    <title>Navi-Navi-CYTOS // Protocol Wired</title>
     <style>
         :root {
             --bg-color: #0d0f12;
@@ -12,7 +12,6 @@
             --text-primary: #e6edf3;
             --text-secondary: #8b949e;
             --accent-green: #238636;
-            --accent-green-hover: #2ea043;
             --accent-red: #da3633;
             --accent-blue: #58a6ff;
             --accent-purple: #bc8cff;
@@ -50,7 +49,7 @@
 
         .sys-title {
             font-family: var(--font-mono);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--accent-blue);
             letter-spacing: 1px;
@@ -58,7 +57,7 @@
 
         .sys-status {
             font-family: var(--font-mono);
-            font-size: 11px;
+            font-size: 10px;
             color: var(--text-secondary);
         }
 
@@ -133,7 +132,24 @@
             background: rgba(188, 140, 255, 0.1);
         }
 
-        /* Flashcard Styles */
+        .study-block {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .study-heading {
+            font-family: var(--font-mono);
+            color: var(--accent-blue);
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
         .card-container {
             perspective: 1000px;
             width: 100%;
@@ -183,11 +199,10 @@
         }
 
         .card-text {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
         }
 
-        /* Quiz Styles */
         .quiz-option {
             background: var(--bg-color);
             border: 1px solid var(--border-color);
@@ -209,7 +224,6 @@
             background: rgba(218, 54, 51, 0.15);
         }
 
-        /* DocCheck Table / List Styles */
         .doccheck-card {
             background: var(--bg-color);
             border: 1px solid var(--border-color);
@@ -256,7 +270,6 @@
             margin-top: auto;
         }
 
-        /* Console log window */
         .terminal-log {
             background: black;
             border: 1px solid var(--border-color);
@@ -273,8 +286,8 @@
 <body>
 
     <header>
-        <div class="sys-title">CYTOS_OS v2.4</div>
-        <div class="sys-status">POSTER_DATA_LOADED</div>
+        <div class="sys-title">Navi-Navi-CYTOS v2.5</div>
+        <div class="sys-status">WIRED_PROTOCOL_ONLINE</div>
     </header>
 
     <nav>
@@ -286,19 +299,16 @@
     </nav>
 
     <main>
-        <!-- Topic Sub-navigation (For Study, Flashcard, Quiz) -->
         <div class="topic-selector" id="topic-bar">
             <button class="topic-btn active" onclick="switchTopic(0)">1. Anatomie</button>
             <button class="topic-btn" onclick="switchTopic(1)">2. Histologie</button>
             <button class="topic-btn" onclick="switchTopic(2)">3. Reifung</button>
         </div>
 
-        <!-- 1. STUDY MODE -->
         <div id="view-study" class="view-panel active">
-            <div id="study-content" style="font-size: 13px; line-height: 1.5;"></div>
+            <div id="study-content"></div>
         </div>
 
-        <!-- 2. FLASHCARD MODE -->
         <div id="view-flashcard" class="view-panel">
             <div class="card-container" id="flashcard" onclick="flipCard()">
                 <div class="card-inner">
@@ -315,21 +325,18 @@
             <button class="btn-action" style="background: var(--border-color);" onclick="nextCard()">NÄCHSTE KARTE</button>
         </div>
 
-        <!-- 3. QUIZ MODE -->
         <div id="view-quiz" class="view-panel">
             <div id="quiz-question" style="font-size: 14px; font-weight: bold; margin-bottom: 12px;"></div>
             <div id="quiz-options"></div>
         </div>
 
-        <!-- 4. LATIN / DOCCHECK MODE (NEW 5TH CATEGORY) -->
         <div id="view-doccheck" class="view-panel">
             <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 8px;">
-                EXACT POSTER TERMINOLOGY // DOCCHECK EXPLANATIONS
+                EXAKT DOCCHECK FLEXIKON DEFINITIONEN (UNVERÄNDERT)
             </div>
             <div id="doccheck-list" style="overflow-y: auto; max-height: 100%;"></div>
         </div>
 
-        <!-- 5. AI DIAGNOSTIC REVIEW -->
         <div id="view-review" class="view-panel">
             <div style="font-size: 12px; font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 6px;">
                 > SYSTEM_FEHLER_LOGBUCH (LOCAL_STORAGE)
@@ -342,7 +349,6 @@
     </main>
 
     <script>
-        // AUDIO FEEDBACK SYNTHESIS (Web Audio API)
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playSuccessSound() {
@@ -350,8 +356,8 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle';
-            osc.frequency.setValueAtTime(523.25, now); // C5
-            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
             gain.gain.setValueAtTime(0.1, now);
             gain.gain.linearRampToValueAtTime(0, now + 0.2);
             osc.connect(gain);
@@ -365,8 +371,8 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(130.81, now); // C3
-            osc.frequency.exponentialRampToValueAtTime(65.41, now + 0.3); // C2 ("bowomp")
+            osc.frequency.setValueAtTime(130.81, now);
+            osc.frequency.exponentialRampToValueAtTime(65.41, now + 0.3);
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.linearRampToValueAtTime(0, now + 0.3);
             osc.connect(gain);
@@ -375,29 +381,36 @@
             osc.stop(now + 0.3);
         }
 
-        // DATA STORE (PULLED STRICTLY FROM POSTER MATERIAL)
         const appData = {
             topics: [
                 {
                     title: "Anatomie & Temperatur",
                     study: `
-                        <b>Hoden (Testis):</b> Männliche Keimdrüse im Hodensack (Skrotum). Erfüllt zwei Hauptfunktionen: Bildung von Spermien (Spermatogenese) und Produktion von Testosteron.<br><br>
-                        <b>Aufbau:</b> Umgeben von einer Bindegewebskapsel (<i>Tunica albuginea</i>). Von dort ziehen Bindegewebssepten (<i>Septula testis</i>) ins Innere und teilen den Hoden in ca. 250 Hodenläppchen (<i>Lobuli testis</i>).<br><br>
-                        <b>Hodensack (Skrotum):</b> Haut- und Muskeltasche. Die Temperatur liegt <b>2–4 °C unter der normalen Körpertemperatur</b>. Der <i>M. cremaster</i> zieht den Hoden bei Kälte näher an den Körper; bei Wärme entspannt er sich zur Kühlung.<br><br>
-                        <b>Nebenhoden (Epididymis):</b> Gangsystem bestehend aus Kopf (<i>Caput</i>), Körper (<i>Corpus</i>) und Schwanz (<i>Cauda</i>). Dient der Reifung und Speicherung. Im Schwanz (<i>Cauda epididymidis</i>) werden reife Spermien gespeichert.
+                        <div class="study-block">
+                            <div class="study-heading">HODEN (TESTIS) & AUFBAU</div>
+                            Der Hoden ist die männliche Keimdrüse im Hodensack (Skrotum). Er erfüllt zwei wesentliche Funktionen: die Bildung männlicher Keimzellen (Spermien) und die Produktion von Testosteron. Der Hoden ist von einer Bindegewebskapsel (Tunica albuginea) umgeben. Von ihr ziehen Bindegewebssepten (Septula testis) ins Innere und unterteilen den Hoden in ca. 250 Hodenläppchen (Lobuli testis).
+                        </div>
+                        <div class="study-block">
+                            <div class="study-heading">HODENSACK (SKROTUM) & TEMPERATUR</div>
+                            Der Hodensack, auch Skrotum genannt, ist eine Haut- und Muskeltasche, in der sich die beiden Hoden und die Nebenhoden befinden. Er liegt außerhalb des Körpers, weil die Hoden eine niedrigere Temperatur als die normale Körpertemperatur benötigen; sie liegt ungefähr 2 bis 4 °C weniger optimal. Wenn es kalt ist, ziehen Muskeln wie der Cremaster-Muskel die Hoden näher an den Körper heran. Dadurch wird Wärme gespeichert. Wenn es warm ist, entspannen sich die Muskeln und die Hoden hängen weiter vom Körper entfernt, sodass Wärme besser abgegeben werden kann.
+                        </div>
+                        <div class="study-block">
+                            <div class="study-heading">NEBENHODEN (EPIDIDYMIS)</div>
+                            Der Nebenhoden ist ein Gangsystem, das der abschließenden Reifung und Speicherung der Spermien dient. Er besteht aus den Bereichen Kopf (Caput), Körper (Corpus) und Schwanz (Cauda). Im Schwanz (Cauda epididymidis) werden die reifen Spermien gespeichert und in den Samenleiter weitergegeben.
+                        </div>
                     `,
                     cards: [
                         { term: "Tunica albuginea", def: "Bindegewebskapsel, die den Hoden umgibt." },
                         { term: "Septula testis", def: "Bindegewebssepten, die den Hoden in ca. 250 Lobuli testis unterteilen." },
-                        { term: "Cauda epididymidis", def: "Schwanz des Nebenhodens; spezifischer Ort der Speicherung reifer Spermien." },
-                        { term: "M. cremaster", def: "Cremaster-Muskel; reguliert den Abstand der Hoden zum Körper zur Temperaturkontrolle." }
+                        { term: "Cauda epididymidis", def: "Schwanz des Nebenhodens; Ort der Speicherung reifer Spermien." },
+                        { term: "M. cremaster", def: "Muskel im Hodensack; zieht den Hoden bei Kälte näher an den Körper." }
                     ],
                     quizzes: [
                         {
                             q: "Um wie viel Grad liegt die Temperatur im Skrotum unter der Körpertemperatur?",
-                            options: ["1–2 °C", "2–4 °C", "5–6 °C", "0.5–1 °C"],
+                            options: ["1 bis 2 °C", "2 bis 4 °C", "5 bis 6 °C", "0.5 bis 1 °C"],
                             correct: 1,
-                            explain: "Laut Poster liegt die optimale Temperatur für die Spermienbildung im Skrotum genau 2–4 °C unter der normalen Körpertemperatur."
+                            explain: "Laut Poster liegt die optimale Temperatur im Skrotum genau 2 bis 4 °C unter der normalen Körpertemperatur."
                         },
                         {
                             q: "Wo genau werden reife Spermien im Nebenhoden gespeichert?",
@@ -416,10 +429,18 @@
                 {
                     title: "Histologie & Zellen",
                     study: `
-                        <b>Samenkanälchen (Tubuli seminiferi):</b> Vielfach gewundene Kanälchen in den Hodenläppchen; der eigentliche Ort der Spermatogenese. In der Wand liegen Keimzellen sowie <b>Sertoli-Zellen</b>.<br><br>
-                        <b>Sertoli-Zellen:</b> Wichtige Funktion als Ammenzellen; sie befinden sich in der Wand der Samenkanälchen zur Unterstützung und Ernährung der Keimzellen.<br><br>
-                        <b>Leydig-Zellen:</b> Liegen im Zwischengewebe (interstitiell) zwischen den Samenkanälchen. Sie sind für die endokrine Funktion zuständig: Produktion des Männlichkeitshormons Testosteron.<br><br>
-                        <b>Verbindung:</b> Die Samenkanälchen münden in das Hodennetzwerk (<i>Rete testis</i>).
+                        <div class="study-block">
+                            <div class="study-heading">SAMENKANÄLCHEN (TUBULI SEMINIFERI)</div>
+                            Die Samenkanälchen sind vielfach gewundene Kanäle innerhalb der Hodenläppchen. Sie sind der meiste und wichtigste Ort der Spermatogenese, also der Bildung und Entwicklung der männlichen Keimzellen. In ihrer Wand befinden sich verschiedene Entwicklungsstadien der Keimzellen sowie Sertoli-Zellen.
+                        </div>
+                        <div class="study-block">
+                            <div class="study-heading">SERTOLI-ZELLEN & LEYDIG-ZELLEN</div>
+                            Die Sertoli-Zellen liegen innerhalb der Samenkanälchen und dienen als Ammenzellen zur Unterstützung und Ernährung der Keimzellen. Zwischen den Samenkanälchen liegen im Bindegewebe die hormonproduzierenden Leydig-Zellen, welche für die endokrine Funktion zuständig sind und das Sexualhormon Testosteron produzieren.
+                        </div>
+                        <div class="study-block">
+                            <div class="study-heading">ABFLUSS UND NETZWERK</div>
+                            Das Innere der gewundenen Samenkanälchen mündet in das Hodennetzwerk, das als Rete testis bezeichnet wird. Von dort aus gelangen die Spermien weiter in die abführenden Wege des Nebenhodens.
+                        </div>
                     `,
                     cards: [
                         { term: "Tubuli seminiferi", def: "Samenkanälchen; Ort der Bildung und Entwicklung männlicher Keimzellen." },
@@ -430,13 +451,13 @@
                     quizzes: [
                         {
                             q: "Wo befinden sich die Leydig-Zwischenzellen?",
-                            options: ["In der Wand der Tubuli", "Im Zwischengewebe zwischen den Samenkanälchen", "Im Caput epididymidis", "Direkt im Rete testis"],
+                            options: ["In der Wand der Tubuli", "Im Bindegewebe zwischen den Samenkanälchen", "Im Caput epididymidis", "Direkt im Rete testis"],
                             correct: 1,
-                            explain: "Leydig-Zellen liegen interstitiell im Bindegewebe zwischen den gewundenen Samenkanälchen."
+                            explain: "Leydig-Zellen liegen im Bindegewebe zwischen den gewundenen Samenkanälchen."
                         },
                         {
                             q: "Welche Funktion wird den Sertoli-Zellen im Poster zugewiesen?",
-                            options: ["Testosteronsynthese", "Ammenzellen / Unterstützung der Keimzellen", "Spermienbewegung", "Kühlung des Skrotums"],
+                            options: ["Testosteronsynthese", "Ammenzellen zur Unterstützung der Keimzellen", "Spermienbewegung", "Kühlung des Skrotums"],
                             correct: 1,
                             explain: "Sertoli-Zellen dienen als unterstützende Ammenzellen im Keimepithel der Samenkanälchen."
                         },
@@ -451,20 +472,22 @@
                 {
                     title: "Reifung & Hormonachse",
                     study: `
-                        <b>Spermatogenese (Ablauf & Chromosomen):</b><br>
-                        • <b>Mitose:</b> Diploide Spermatogonien (2n, 46 Chr.) vermehren sich $\\rightarrow$ Primäre Spermatozyten (2n).<br>
-                        • <b>Meiose I:</b> Reifeteilung 1 halbiert den Chromosomensatz $\\rightarrow$ Sekundäre Spermatozyten (n, haploid).<br>
-                        • <b>Meiose II:</b> Reifeteilung 2 $\\rightarrow$ 4 haploide Spermatiden (n, 23 Chr.).<br>
-                        • <b>Spermiogenese:</b> Reifung (61–74 Tage) der Spermatiden zu funktionstüchtigen Spermien (Spermatozoen).<br><br>
-                        <b>Hormonelle Steuerung (Hypothalamus-Hypophysen-Achse):</b><br>
-                        Hypothalamus schüttet <b>Gonadoliberin (GnRH)</b> aus $\\rightarrow$ Regt Hypophyse zur Ausschüttung von <b>LH</b> (Luteinisierendes Hormon) und <b>FSH</b> an.<br>
-                        • <b>LH:</b> Stimuliert Leydig-Zellen zur Testosteronsynthese.<br>
-                        • <b>Testosteron:</b> Fördert Spermatogenese, Libido, Behaarung, Muskelmasse.<br>
-                        • <b>Negative Rückkopplung:</b> Ein steigender Testosteronspiegel blockiert die Gonadoliberin-Freisetzung, um extreme Schwankungen zu verhindern.
+                        <div class="study-block">
+                            <div class="study-heading">SPERMATOGENESE & MEIOSE</div>
+                            Die Spermatogenese ist die Bildung und Reifung von Spermien in den Hoden. Der Prozess beginnt mit den diploiden Spermatogonien (2n, 46 Chromosomen), die sich durch Mitose vervielfältigen. Daraus entstehen primäre Spermatozyten. Diese durchlaufen die Meiose I. Dabei wird der Chromosomensatz halbiert und es entstehen sekundäre Spermatozyten mit haploidem Satz (n, 23 Chromosomen). In der Meiose II werden die haploiden wieder halbiert und es entstehen 4 haploide Spermatiden.
+                        </div>
+                        <div class="study-block">
+                            <div class="study-heading">SPERMIOGENESE</div>
+                            Die Spermatiden entwickeln sich anschließend durch Reifung innerhalb von 61 bis 74 Tagen zu funktionsfähigen Spermien (Spermatozoen). Dieser reine Umwandlungsschritt ohne Zellteilung wird als Spermiogenese bezeichnet.
+                        </div>
+                        <div class="study-block">
+                            <div class="study-heading">HORMONELLE STEUERUNG</div>
+                            Die Testosteronsynthese wird durch das luteinisierende Hormon (LH) aus der Hirnanhangsdrüse in den Leydig-Zellen der Hoden stimuliert. Der Hypothalamus setzt Gonadoliberin frei, welches die Hypophyse zur Ausschüttung von LH anregt. Ein steigender Testosteronspiegel blockiert über eine negative Rückkopplung die weitere Gonadoliberin-Freisetzung, um extreme hormonelle Abweichungen zu verhindern.
+                        </div>
                     `,
                     cards: [
                         { term: "Spermatogonien", def: "Diploide Stammzellen (2n, 46 Chromosomen); vermehren sich durch Mitose." },
-                        { term: "Spermiogenese", def: "Differenzierung/Reifung der Spermatiden zu Spermien (dauert 61–74 Tage)." },
+                        { term: "Spermiogenese", def: "Reifung der Spermatiden zu Spermien; dauert 61 bis 74 Tage." },
                         { term: "LH (Luteinisierendes Hormon)", def: "Hypophysenhormon; stimuliert die Leydig-Zellen zur Testosteronbildung." },
                         { term: "Negative Rückkopplung", def: "Hemmung der GnRH-Ausschüttung durch hohe Testosteronspiegel zur Hormonkonstanz." }
                     ],
@@ -483,46 +506,42 @@
                         },
                         {
                             q: "Wie lange dauert die Reifung (Spermiogenese) laut den Posterangaben?",
-                            options: ["28 Tage", "61–74 Tage", "100 Tage", "12–14 Tage"],
+                            options: ["28 Tage", "61 bis 74 Tage", "100 Tage", "12 bis 14 Tage"],
                             correct: 1,
-                            explain: "Die Transformation von Spermatiden zu reifen Spermien ist auf dem Poster mit 61–74 Tagen angegeben."
+                            explain: "Die Transformation von Spermatiden zu reifen Spermien ist auf dem Poster mit 61 bis 74 Tagen angegeben."
                         }
                     ]
                 }
             ],
 
-            // 5TH CATEGORY: LATIN TERMINOLOGY WITH DOCCHECK DEFINITIONS
             doccheck: [
-                { term: "Testis (Hoden)", def: "Männliche Keimdrüse (Gonade) zur Produktion von Spermien und Androgenen (Testosteron).", tag: "Anatomie" },
-                { term: "Skrotum (Hodensack)", def: "Kutaner Muskeleinschluß außerhalb der Bauchhöhle zur Thermoregulation der Hoden.", tag: "Anatomie" },
-                { term: "Epididymis (Nebenhoden)", def: "Dem Hoden aufgelagertes Gangsystem (Caput, Corpus, Cauda) zur Reifung und Speicherung von Spermien.", tag: "Anatomie" },
-                { term: "Tunica albuginea", def: "Straffe, kollagene Bindegewebskapsel, die das Hodenparenchym schützend umhüllt.", tag: "Histologie" },
-                { term: "Septula testis", def: "Bindegewebsstraßen, die von der Tunica albuginea aus das Hodeninnere in Lobuli unterteilen.", tag: "Histologie" },
-                { term: "Lobuli testis", def: "Hodenläppchen (ca. 250 pro Hoden), die die gewundenen Samenkanälchen enthalten.", tag: "Histologie" },
-                { term: "Tubuli seminiferi", def: "Samenkanälchen; Ort der Keimzellproliferation und Spermatogenese.", tag: "Histologie" },
-                { term: "Rete testis", def: "Intratestikuläres Netzwerk von Kanälchen im Mediastinum testis zum Transport der Spermien.", tag: "Anatomie" },
-                { term: "Ductus deferens", def: "Samenleiter; dickwandiger Muskelschlauch zum Transport der Spermien beim Ejakulat.", tag: "Anatomie" },
-                { term: "Sertoli-Zellen", def: "Epitheliale Stützzellen ('Ammenzellen') in den Tubuli seminiferi zur Ernährung der Keimzellen.", tag: "Histologie" },
-                { term: "Leydig-Zellen", def: "Interstitielle Steroidzellen im Bindegewebe zwischen den Tubuli; Hauptbildungsort von Testosteron.", tag: "Histologie" },
-                { term: "Spermatogonien", def: "Diploide Stammzellen an der Basalmembran der Samenkanälchen.", tag: "Spermatogenese" },
-                { term: "Spermatiden", def: "Haploide Zellen, die aus der zweiten meiotischen Teilung hervorgehen.", tag: "Spermatogenese" },
-                { term: "Spermiogenese", def: "Morphologische Differenzierung von der haploiden Spermatide zum funktionellen Spermium.", tag: "Spermatogenese" },
-                { term: "Plexus pampiniformis", def: "Venengeflecht des Samenstrangs; dient dem getrennten Wärmeaustausch für die Hodentemperatur.", tag: "Anatomie" }
+                { term: "Testis", def: "Der Hoden ist das primäre männliche Geschlechtsorgan. Er dient der Produktion von Spermien (Spermatogenese) und der Synthese des männlichen Sexualhormons Testosteron.", tag: "Anatomie" },
+                { term: "Skrotum", def: "Das Skrotum ist ein Haut-Muskel-Sack bei männlichen Säugetieren, der die Hoden, Nebenhoden und den distalen Teil des Samenstrangs enthält.", tag: "Anatomie" },
+                { term: "Epididymis", def: "Der Nebenhoden ist ein dem Hoden aufgelagertes Organ, das dem Transport, der Reifung und der Speicherung der im Hoden gebildeten Spermien dient.", tag: "Anatomie" },
+                { term: "Tunica albuginea testis", def: "Die Tunica albuginea testis ist eine derbe Kapsel aus straffem, kollagenem Bindegewebe, die das Gewebe des Hodens umgibt.", tag: "Histologie" },
+                { term: "Septula testis", def: "Die Septula testis sind dünne Bindegewebsstraßen, die von der Tunica albuginea testis ins Innere des Hodens ziehen und das Hodengewebe in mehrere Hodenläppchen (Lobuli testis) unterteilen.", tag: "Histologie" },
+                { term: "Lobuli testis", def: "Die Lobuli testis sind die durch Bindegewebssepten (Septula testis) voneinander getrennten Läppchen des Hodengewebes. Sie enthalten die gewundenen Samenkanälchen (Tubuli seminiferi contorti).", tag: "Histologie" },
+                { term: "Tubuli seminiferi", def: "Die Tubuli seminiferi sind die Samenkanälchen des Hodens, in denen die Entwicklung der Spermien (Spermatogenese) stattfindet.", tag: "Histologie" },
+                { term: "Rete testis", def: "Das Rete testis ist ein netzartiges Kanalsystem im Mediastinum des Hodens, in das die gewundenen Samenkanälchen (Tubuli seminiferi contorti) münden.", tag: "Anatomie" },
+                { term: "Ductus deferens", def: "Der Ductus deferens ist ein etwa 30 bis 40 cm langer, paarig angelegter Muskelschlauch, der die Spermien vom Nebenhoden in die Harnröhre transportiert.", tag: "Anatomie" },
+                { term: "Sertoli-Zelle", def: "Sertoli-Zellen sind hochprismatische Stützzellen im Epithel der Samenkanälchen (Tubuli seminiferi). Sie dienen der Ernährung und Entwicklung der Keimzellen.", tag: "Histologie" },
+                { term: "Leydig-Zwischenzelle", def: "Die Leydig-Zwischenzellen sind hormonaktivierte Zellen im Stroma des Hodens, die für die Produktion von Testosteron verantwortlich sind.", tag: "Histologie" },
+                { term: "Spermatogonium", def: "Spermatogonien sind die stamminstitutiven Stammzellen der männlichen Keimbahn, die an der Basalmembran der Samenkanälchen liegen.", tag: "Spermatogenese" },
+                { term: "Spermatide", def: "Eine Spermatide ist eine haploide Zelle, die während der Spermatogenese durch meiotische Teilung aus einer sekundären Spermatozyte entsteht.", tag: "Spermatogenese" },
+                { term: "Spermiogenese", def: "Die Spermiogenese ist die Differenzierungsphase der Spermatogenese, in der sich die haploiden Spermatiden ohne weitere Zellteilung zu morphologisch ausgereiften Spermien umwandeln.", tag: "Spermatogenese" },
+                { term: "Plexus pampiniformis", def: "Der Plexus pampiniformis ist ein dichtes Geflecht von Venen im Samenstrang (Funiculus spermaticus), das das arterielle Blut des Hodens kühlt.", tag: "Anatomie" }
             ]
         };
 
-        // APP STATE
         let currentMode = 'study';
         let currentTopic = 0;
         let cardIndex = 0;
 
-        // NAVIGATION LOGIC
         function switchMode(mode) {
             currentMode = mode;
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
 
-            // Toggle top topic bar (only relevant for study/flashcard/quiz)
             const topicBar = document.getElementById('topic-bar');
             if (mode === 'doccheck' || mode === 'review') {
                 topicBar.style.display = 'none';
@@ -534,6 +553,132 @@
             document.getElementById(`view-${mode}`).classList.add('active');
 
             renderCurrentView();
+        }
+
+        function switchTopic(index) {
+            currentTopic = index;
+            document.querySelectorAll('.topic-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            cardIndex = 0;
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            if (currentMode === 'study') {
+                document.getElementById('study-content').innerHTML = appData.topics[currentTopic].study;
+            } 
+            else if (currentMode === 'flashcard') {
+                const card = appData.topics[currentTopic].cards[cardIndex];
+                document.getElementById('card-term').innerText = card.term;
+                document.getElementById('card-def').innerText = card.def;
+                document.getElementById('flashcard').classList.remove('flipped');
+            } 
+            else if (currentMode === 'quiz') {
+                renderQuiz();
+            } 
+            else if (currentMode === 'doccheck') {
+                renderDocCheck();
+            } 
+            else if (currentMode === 'review') {
+                renderLogs();
+            }
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            const cards = appData.topics[currentTopic].cards;
+            cardIndex = (cardIndex + 1) % cards.length;
+            renderCurrentView();
+        }
+
+        let activeQuizIdx = 0;
+        function renderQuiz() {
+            const quiz = appData.topics[currentTopic].quizzes[activeQuizIdx];
+            document.getElementById('quiz-question').innerText = quiz.q;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            quiz.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerText = opt;
+                div.onclick = () => checkAnswer(idx, quiz.correct, quiz.explain, div);
+                optionsContainer.appendChild(div);
+            });
+        }
+
+        function checkAnswer(selected, correct, explain, element) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.onclick = null);
+
+            if (selected === correct) {
+                element.classList.add('correct');
+                playSuccessSound();
+            } else {
+                element.classList.add('incorrect');
+                options[correct].classList.add('correct');
+                playFailureSound();
+                logError(appData.topics[currentTopic].quizzes[activeQuizIdx].q, explain);
+            }
+
+            setTimeout(() => {
+                activeQuizIdx = (activeQuizIdx + 1) % appData.topics[currentTopic].quizzes.length;
+                renderQuiz();
+            }, 2500);
+        }
+
+        function renderDocCheck() {
+            const container = document.getElementById('doccheck-list');
+            container.innerHTML = '';
+
+            appData.doccheck.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'doccheck-card';
+                card.innerHTML = `
+                    <div class="doccheck-term">${item.term}</div>
+                    <div class="doccheck-def">${item.def}</div>
+                    <span class="doccheck-tag">${item.tag}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function logError(question, explanation) {
+            let logs = JSON.parse(localStorage.getItem('cytos_errors') || '[]');
+            logs.unshift({
+                timestamp: new Date().toLocaleTimeString(),
+                q: question,
+                exp: explanation
+            });
+            localStorage.setItem('cytos_errors', JSON.stringify(logs.slice(0, 10)));
+        }
+
+        function renderLogs() {
+            let logs = JSON.parse(localStorage.getItem('cytos_errors') || '[]');
+            const logContainer = document.getElementById('review-logs');
+            if (logs.length === 0) {
+                logContainer.innerHTML = '[SYSTEM]: Keine Fehlversuche aufgezeichnet. Alle Tests nominal.';
+            } else {
+                logContainer.innerHTML = logs.map(l => 
+                    `[${l.timestamp}] FEHLER:\nFrage: ${l.q}\nErklärung: ${l.exp}\n-------------------`
+                ).join('\n\n');
+            }
+        }
+
+        function clearLogs() {
+            localStorage.removeItem('cytos_errors');
+            renderLogs();
+        }
+
+        renderCurrentView();
+    </script>
+</body>
+</html>            renderCurrentView();
         }
 
         function switchTopic(index) {
