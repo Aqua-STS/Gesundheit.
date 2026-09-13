@@ -416,11 +416,16 @@
             if (currentMode === 'study') {
                 document.getElementById('study-content').innerHTML = appData.topics[currentTopic].study;
             } 
-            else if (currentMode === 'flashcard') {
-                const card = appData.topics[currentTopic].cards[cardIndex];
-                document.getElementById('card-term').innerText = card.term;
-                document.getElementById('card-def').innerText = card.def;
-                document.getElementById('flashcard').classList.remove('flipped');
+           else if (currentMode === 'flashcard') {
+    const card = appData.topics[currentTopic].cards[cardIndex];
+    document.getElementById('card-term').innerText = card.term;
+
+    // Check if the definition exists in doccheck; if found, use it automatically
+    const docEntry = appData.doccheck.find(item => item.term.toLowerCase() === card.term.toLowerCase());
+    const definitionText = docEntry ? docEntry.def : card.def;
+
+    document.getElementById('card-def').innerText = definitionText;
+    document.getElementById('flashcard').classList.remove('flipped');
             } 
             else if (currentMode === 'quiz') {
                 if (currentQuizQueue.length === 0) {
