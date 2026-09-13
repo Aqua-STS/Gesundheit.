@@ -1,1004 +1,669 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CYTOS_OS // MEDICAL_PRO_MODULE</title>
-  <style>
-    :root {
-      --bg-color: #0b0f19;
-      --card-bg: #111827;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
-      --accent-purple: #a855f7;
-      --dim-border: #1e293b;
-      --text-main: #f8fafc;
-      --text-muted: #64748b;
-      --alert-red: #ef4444;
-      --success-green: #10b981;
-      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --font-code: "JetBrains Mono", "Courier New", monospace;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYTOS_OS // HODEN & SPERMATOGENESE</title>
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --panel-bg: #161920;
+            --border-color: #2a2f3a;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-green: #238636;
+            --accent-green-hover: #2ea043;
+            --accent-red: #da3633;
+            --accent-blue: #58a6ff;
+            --accent-purple: #bc8cff;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      font-family: var(--font-main);
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
-      padding: 16px;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+        }
 
-    .app-container {
-      width: 100%;
-      max-width: 600px;
-      background: var(--card-bg);
-      border: 1px solid var(--dim-border);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-    }
+        header {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--dim-border);
-      margin-bottom: 12px;
-      font-family: var(--font-code);
-      font-size: 0.75rem;
-      color: var(--accent-cyan);
-    }
+        .sys-title {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-blue);
+            letter-spacing: 1px;
+        }
 
-    .analytics-bar {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid var(--dim-border);
-      border-radius: 6px;
-      padding: 8px;
-      font-family: var(--font-code);
-      font-size: 0.7rem;
-      text-align: center;
-    }
+        .sys-status {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
 
-    .stat-val {
-      font-weight: bold;
-      color: var(--accent-cyan);
-      font-size: 0.85rem;
-      margin-top: 2px;
-    }
+        nav {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
 
-    .controls-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      gap: 8px;
-    }
+        .nav-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 8px 4px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: var(--font-mono);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
 
-    .mode-switch {
-      display: flex;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--dim-border);
-      border-radius: 6px;
-      padding: 2px;
-      width: 100%;
-      overflow-x: auto;
-    }
+        .nav-btn.active {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
 
-    .mode-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 6px 6px;
-      font-size: 0.65rem;
-      font-family: var(--font-code);
-      cursor: pointer;
-      border-radius: 4px;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
+        main {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
 
-    .mode-btn.active {
-      background: var(--accent-blue);
-      color: #fff;
-      font-weight: bold;
-    }
+        .view-panel {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+        }
 
-    .mode-btn.review-btn {
-      color: var(--accent-purple);
-    }
+        .view-panel.active {
+            display: flex;
+        }
 
-    .mode-btn.review-btn.active {
-      background: var(--accent-purple);
-      color: #fff;
-    }
+        .topic-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
 
-    .sound-toggle {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--dim-border);
-      color: var(--text-main);
-      padding: 6px 10px;
-      font-size: 0.65rem;
-      font-family: var(--font-code);
-      border-radius: 6px;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+        .topic-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
-    .progress-bar-container {
-      width: 100%;
-      height: 6px;
-      background: var(--dim-border);
-      border-radius: 3px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
+        .topic-btn.active {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            background: rgba(188, 140, 255, 0.1);
+        }
 
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
-      transition: width 0.3s ease;
-    }
+        /* Flashcard Styles */
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 220px;
+            cursor: pointer;
+        }
 
-    .topic-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 16px;
-    }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.4s;
+            transform-style: preserve-3d;
+        }
 
-    .topic-btn {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--dim-border);
-      color: var(--text-muted);
-      padding: 8px 4px;
-      font-size: 0.7rem;
-      font-family: var(--font-code);
-      cursor: pointer;
-      text-align: center;
-      border-radius: 6px;
-      transition: all 0.2s;
-    }
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
 
-    .topic-btn.unlocked {
-      color: var(--accent-cyan);
-      border-color: rgba(6, 182, 212, 0.3);
-    }
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-color);
+        }
 
-    .topic-btn.active {
-      background: var(--accent-blue);
-      color: #ffffff;
-      font-weight: bold;
-      border-color: var(--accent-blue);
-    }
+        .card-back {
+            transform: rotateY(180deg);
+            border-color: var(--accent-blue);
+        }
 
-    .content-box {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--dim-border);
-      border-radius: 8px;
-      padding: 14px;
-      min-height: 280px;
-      margin-bottom: 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
+        .card-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
 
-    .tag-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
+        .card-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
 
-    .badge {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-family: var(--font-code);
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
+        /* Quiz Styles */
+        .quiz-option {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
 
-    .badge-study { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-    .badge-flash { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-    .badge-quiz { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
-    .badge-summary { background: rgba(16, 185, 129, 0.15); color: var(--success-green); }
-    .badge-review { background: rgba(168, 85, 247, 0.25); color: #e9d5ff; border: 1px solid var(--accent-purple); }
+        .quiz-option.correct {
+            border-color: var(--accent-green);
+            background: rgba(35, 134, 54, 0.15);
+        }
 
-    .node-title {
-      font-size: 0.85rem;
-      font-family: var(--font-code);
-      color: var(--accent-cyan);
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+        .quiz-option.incorrect {
+            border-color: var(--accent-red);
+            background: rgba(218, 54, 51, 0.15);
+        }
 
-    .node-body {
-      font-size: 0.88rem;
-      line-height: 1.5;
-      color: var(--text-main);
-      margin-bottom: 12px;
-    }
+        /* DocCheck Table / List Styles */
+        .doccheck-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-blue);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
 
-    .diagram-wrap {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--dim-border);
-      border-radius: 6px;
-      padding: 10px;
-      margin: 10px 0;
-      text-align: center;
-    }
+        .doccheck-term {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
 
-    .flashcard-container {
-      perspective: 1000px;
-      margin: 12px 0;
-      min-height: 140px;
-      cursor: pointer;
-    }
+        .doccheck-def {
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
 
-    .flashcard {
-      width: 100%;
-      height: 140px;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
-      border-radius: 8px;
-    }
+        .doccheck-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            background: var(--border-color);
+            color: var(--text-secondary);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-top: 6px;
+        }
 
-    .flashcard.flipped {
-      transform: rotateY(180deg);
-    }
+        .btn-action {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: auto;
+        }
 
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
-      border-radius: 8px;
-      border: 1px solid var(--dim-border);
-      text-align: center;
-      box-sizing: border-box;
-    }
-
-    .card-front {
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--accent-cyan);
-      font-family: var(--font-code);
-      font-size: 0.95rem;
-      font-weight: bold;
-    }
-
-    .card-back {
-      background: rgba(59, 130, 246, 0.1);
-      color: var(--text-main);
-      transform: rotateY(180deg);
-      font-size: 0.85rem;
-      line-height: 1.4;
-      border-color: var(--accent-blue);
-    }
-
-    .card-hint {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      margin-top: 8px;
-      font-weight: normal;
-    }
-
-    .options-container {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .opt-btn {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--dim-border);
-      color: var(--text-main);
-      padding: 10px 12px;
-      font-size: 0.85rem;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .opt-btn:hover {
-      background: rgba(59, 130, 246, 0.1);
-      border-color: var(--accent-blue);
-    }
-
-    .action-btn {
-      background: var(--accent-blue);
-      color: #fff;
-      border: none;
-      padding: 10px 16px;
-      font-size: 0.85rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      width: 100%;
-    }
-
-    .action-btn.secondary {
-      background: transparent;
-      border: 1px solid var(--dim-border);
-      color: var(--text-muted);
-      margin-top: 6px;
-    }
-
-    .action-btn.purple {
-      background: var(--accent-purple);
-      color: #fff;
-    }
-
-    .feedback {
-      min-height: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      font-family: var(--font-code);
-      text-align: center;
-    }
-
-    .feedback.correct { color: var(--success-green); }
-    .feedback.wrong { color: var(--alert-red); }
-
-    .ai-console {
-      background: rgba(17, 24, 39, 0.8);
-      border: 1px solid var(--accent-purple);
-      border-radius: 8px;
-      padding: 12px;
-      font-family: var(--font-code);
-      margin-bottom: 12px;
-    }
-
-    .ai-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--accent-purple);
-      font-size: 0.75rem;
-      font-weight: bold;
-      margin-bottom: 8px;
-      border-bottom: 1px dashed var(--dim-border);
-      padding-bottom: 6px;
-    }
-
-    .mistake-card {
-      background: rgba(239, 68, 68, 0.05);
-      border-left: 3px solid var(--alert-red);
-      padding: 8px 10px;
-      margin-bottom: 10px;
-      border-radius: 0 6px 6px 0;
-      font-size: 0.8rem;
-    }
-
-    .mistake-title {
-      color: var(--alert-red);
-      font-weight: bold;
-      font-size: 0.75rem;
-      margin-bottom: 4px;
-    }
-
-    .mistake-fix {
-      color: var(--success-green);
-      margin-top: 4px;
-      font-size: 0.78rem;
-    }
-
-    .ai-recommendation {
-      background: rgba(168, 85, 247, 0.1);
-      border: 1px solid rgba(168, 85, 247, 0.3);
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 0.8rem;
-      line-height: 1.4;
-      color: #e9d5ff;
-    }
-  </style>
+        /* Console log window */
+        .terminal-log {
+            background: black;
+            border: 1px solid var(--border-color);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 10px;
+            border-radius: 4px;
+            height: 120px;
+            overflow-y: auto;
+            color: #33ff33;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app-container">
-  <div class="header">
-    <span>LAIN_OS // WIRED_MODULE</span>
-    <span id="timer">00:00</span>
-  </div>
+    <header>
+        <div class="sys-title">CYTOS_OS v2.4</div>
+        <div class="sys-status">POSTER_DATA_LOADED</div>
+    </header>
 
-  <div class="analytics-bar">
-    <div>ACCURACY<div class="stat-val" id="stat-acc">100%</div></div>
-    <div>STREAK<div class="stat-val" id="stat-streak">0 🔥</div></div>
-    <div>FLAWS LOGGED<div class="stat-val" id="stat-flaws" style="color:var(--alert-red)">0</div></div>
-  </div>
+    <nav>
+        <button class="nav-btn active" onclick="switchMode('study')">LERNEN</button>
+        <button class="nav-btn" onclick="switchMode('flashcard')">CARDS</button>
+        <button class="nav-btn" onclick="switchMode('quiz')">QUIZ</button>
+        <button class="nav-btn" onclick="switchMode('doccheck')">LATIN</button>
+        <button class="nav-btn" onclick="switchMode('review')">LOGS</button>
+    </nav>
 
-  <div class="controls-bar">
-    <div class="mode-switch">
-      <button class="mode-btn active" id="btn-study" onclick="setMode('study')">STUDY</button>
-      <button class="mode-btn" id="btn-flash" onclick="setMode('flash')">CARDS</button>
-      <button class="mode-btn" id="btn-quiz" onclick="setMode('quiz')">QUIZ</button>
-      <button class="mode-btn review-btn" id="btn-review" onclick="setMode('review')">AI REVIEW 🤖</button>
-    </div>
-    <button class="sound-toggle" id="sound-btn" onclick="toggleSound()">SOUND: ON</button>
-  </div>
-
-  <div class="progress-bar-container">
-    <div class="progress-bar" id="progress"></div>
-  </div>
-
-  <div class="topic-grid" id="grid"></div>
-
-  <div class="content-box">
-    <div>
-      <div class="tag-row" id="tag-area"></div>
-      <div class="node-title" id="title">INITIALISIERUNG...</div>
-      <div class="node-body" id="body-text"></div>
-    </div>
-    <div class="options-container" id="interaction-area"></div>
-  </div>
-
-  <div class="feedback" id="feedback"></div>
-</div>
-
-<script>
-  let soundEnabled = true;
-  let audioCtx = null;
-
-  // Safe LocalStorage Parser
-  function loadSavedStats() {
-    try {
-      let data = JSON.parse(localStorage.getItem('cytos_stats'));
-      if (data && typeof data === 'object') {
-        if (!Array.isArray(data.flaws)) data.flaws = [];
-        return data;
-      }
-    } catch(e) {}
-    return { correct: 0, total: 0, streak: 0, time: 0, flaws: [] };
-  }
-
-  let stats = loadSavedStats();
-
-  function saveStats() {
-    localStorage.setItem('cytos_stats', JSON.stringify(stats));
-    updateAnalyticsDisplay();
-  }
-
-  function updateAnalyticsDisplay() {
-    const accEl = document.getElementById('stat-acc');
-    const streakEl = document.getElementById('stat-streak');
-    const flawsEl = document.getElementById('stat-flaws');
-
-    if (accEl) {
-      const acc = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 100;
-      accEl.innerText = `${acc}%`;
-    }
-    if (streakEl) streakEl.innerText = `${stats.streak} 🔥`;
-    if (flawsEl) flawsEl.innerText = `${stats.flaws.length}`;
-  }
-
-  function initAudio() {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  }
-
-  function toggleSound() {
-    soundEnabled = !soundEnabled;
-    const btn = document.getElementById('sound-btn');
-    if (btn) btn.innerText = `SOUND: ${soundEnabled ? 'ON' : 'OFF'}`;
-  }
-
-  function playNote(freq, type, startTime, duration, gainVal = 0.03) {
-    let o = audioCtx.createOscillator();
-    let g = audioCtx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.setValueAtTime(gainVal, startTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.start(startTime);
-    o.stop(startTime + duration);
-  }
-
-  function playRightSound() {
-    if (!soundEnabled) return;
-    initAudio();
-    const now = audioCtx.currentTime;
-    const notes = [
-      { f: 329.63, t: 0.00, d: 0.12 },
-      { f: 392.00, t: 0.08, d: 0.12 },
-      { f: 659.25, t: 0.16, d: 0.14 },
-      { f: 523.25, t: 0.24, d: 0.14 },
-      { f: 587.33, t: 0.32, d: 0.16 },
-      { f: 783.99, t: 0.40, d: 0.30 }
-    ];
-    notes.forEach(n => playNote(n.f, 'triangle', now + n.t, n.d, 0.04));
-  }
-
-  function playWrongSound() {
-    if (!soundEnabled) return;
-    initAudio();
-    const now = audioCtx.currentTime;
-    let o = audioCtx.createOscillator();
-    let g = audioCtx.createGain();
-    o.type = 'sawtooth';
-    o.frequency.setValueAtTime(160, now);
-    o.frequency.exponentialRampToValueAtTime(45, now + 0.35);
-    g.gain.setValueAtTime(0.05, now);
-    g.gain.linearRampToValueAtTime(0.001, now + 0.35);
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.start(now);
-    o.stop(now + 0.35);
-  }
-
-  const topics = [
-    {
-      title: "TOPIC 1: ANATOMIE & TEMPERATUR",
-      studyText: "Das Skrotum schützt die Hoden außerhalb der Bauchhöhle, da die Spermiogenese eine Kältezone von 2–4 °C unter der Kerntemperatur verlangt. Die Tunica albuginea unterteilt das Gewebe in ca. 250–300 Lobuli testis. Die Cauda epididymidis im Nebenhodenschwanz fungiert als Hauptspeicherort für funktionell gereifte Spermien.",
-      svgDiagram: `
-        <div class="diagram-wrap">
-          <svg viewBox="0 0 300 120" style="width:100%; max-height:120px;">
-            <rect x="10" y="20" width="80" height="80" rx="40" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
-            <text x="50" y="55" fill="#06b6d4" font-size="10" text-anchor="middle" font-family="monospace">Skrotum</text>
-            <text x="50" y="70" fill="#64748b" font-size="8" text-anchor="middle" font-family="monospace">33–35 °C</text>
-            <path d="M 90 60 L 140 60" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4"/>
-            <rect x="140" y="30" width="70" height="60" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
-            <text x="175" y="58" fill="#f8fafc" font-size="9" text-anchor="middle" font-family="monospace">T. Albuginea</text>
-            <path d="M 210 60 L 240 60" stroke="#3b82f6" stroke-width="2"/>
-            <circle cx="265" cy="60" r="22" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
-            <text x="265" y="58" fill="#10b981" font-size="8" text-anchor="middle" font-family="monospace">Cauda</text>
-            <text x="265" y="68" fill="#64748b" font-size="7" text-anchor="middle" font-family="monospace">(Speicher)</text>
-          </svg>
+    <main>
+        <!-- Topic Sub-navigation (For Study, Flashcard, Quiz) -->
+        <div class="topic-selector" id="topic-bar">
+            <button class="topic-btn active" onclick="switchTopic(0)">1. Anatomie</button>
+            <button class="topic-btn" onclick="switchTopic(1)">2. Histologie</button>
+            <button class="topic-btn" onclick="switchTopic(2)">3. Reifung</button>
         </div>
-      `,
-      flashcards: [
-        { term: "Skrotum-Temperatur", def: "Benötigt 2–4 °C kühler als die Kerntemperatur für optimale Spermiogenese." },
-        { term: "Tunica albuginea", def: "Straffe Bindegewebskapsel, die das Hodeninnere in ca. 250–300 Lobuli gliedert." },
-        { term: "Cauda epididymidis", def: "Der Nebenhodenschwanz; dient als Hauptspeicherort für reife Spermien." }
-      ],
-      quizzes: [
-        {
-          id: "t1_q1",
-          q: "Welche Temperaturdifferenz benötigt die Spermiogenese im Skrotum?",
-          opts: ["2–4 °C kühler", "Exakt Kerntemperatur", "1–2 °C wärmer"],
-          correct: 0,
-          explanation: "Spermien reagieren extrem empfindlich auf Körperwärme. Eine Erhöhung der Temperatur um nur 1-2 °C hemmt die Entwicklung. Deshalb liegen die Hoden extrakorporal im Skrotum.",
-          info: "Richtig! Die Lage außerhalb schützt die Hitze-empfindliche Spermienentwicklung."
-        },
-        {
-          id: "t1_q2",
-          q: "Welche Struktur teilt das Hodeninnere in Lobuli testis ein?",
-          opts: ["Tunica vaginalis", "Tunica albuginea", "Ductus deferens"],
-          correct: 1,
-          explanation: "Die Tunica albuginea ist die derbe, weißliche Bindegewebskapsel des Hodens, von der Bindegewebssepten ins Innere ziehen.",
-          info: "Korrekt! Die Tunica albuginea sendet Septen ins Innere des Hodens."
-        },
-        {
-          id: "t1_q3",
-          q: "Wo werden reife Spermien vor der Ejakulation vorrangig gespeichert?",
-          opts: ["Caput epididymidis", "Cauda epididymidis", "Rete testis"],
-          correct: 1,
-          explanation: "Im Kopf (Caput) reifen sie, aber erst im Schwanz (Cauda) des Nebenhodens lagern sie funktionsfähig bis zur Ejakulation.",
-          info: "Exakt! Die Cauda epididymidis (Nebenhodenschwanz) speichert reife Spermien."
-        }
-      ],
-      summary: "Das Skrotum hält die Hoden kontinuierlich auf 2–4 °C unter Körperkerntemperatur. Die Tunica albuginea gliedert das Hodeninnere straff in Lobuli testis. Die Cauda epididymidis fungiert als primäres Reservoir für die reifen Spermien.",
-      unlocked: true,
-      passedQuizzes: [false, false, false]
-    },
-    {
-      title: "TOPIC 2: HISTOLOGIE & ZELLEN",
-      studyText: "Sertoli-Zellen bilden über enge Tight Junctions die Blut-Hoden-Schranke, die haploide Keimzellen vor Immunangriffen schützt. Leydig-Zwischenzellen liegen im Stroma außerhalb der Samenkanälchen und produzieren unter LH-Einfluss Testosteron. Aus primären Spermatozyten entstehen nach Meiose I haploide sekundäre Spermatozyten.",
-      svgDiagram: `
-        <div class="diagram-wrap">
-          <svg viewBox="0 0 300 110" style="width:100%; max-height:110px;">
-            <rect x="20" y="20" width="110" height="70" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
-            <text x="75" y="50" fill="#06b6d4" font-size="9" text-anchor="middle" font-family="monospace">Sertoli-Zellen</text>
-            <text x="75" y="65" fill="#10b981" font-size="8" text-anchor="middle" font-family="monospace">[Tight Junctions]</text>
-            <rect x="170" y="20" width="110" height="70" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
-            <text x="225" y="50" fill="#ef4444" font-size="9" text-anchor="middle" font-family="monospace">Leydig-Zellen</text>
-            <text x="225" y="65" fill="#f8fafc" font-size="8" text-anchor="middle" font-family="monospace">+ LH → Testosteron</text>
-          </svg>
+
+        <!-- 1. STUDY MODE -->
+        <div id="view-study" class="view-panel active">
+            <div id="study-content" style="font-size: 13px; line-height: 1.5;"></div>
         </div>
-      `,
-      flashcards: [
-        { term: "Blut-Hoden-Schranke", def: "Wird durch Tight Junctions der Sertoli-Zellen gebildet, um Autoimmunreaktionen zu verhindern." },
-        { term: "Leydig-Zwischenzellen", def: "Liegen im Stroma zwischen Samenkanälchen und produzieren Testosteron." },
-        { term: "Meiose I Resultat", def: "Reduziert den Chromosomensatz von diploid (2n) auf haploid (1n)." }
-      ],
-      quizzes: [
-        {
-          id: "t2_q1",
-          q: "Welche Zellen bauen die Blut-Hoden-Schranke auf?",
-          opts: ["Sertoli-Zellen", "Leydig-Zellen", "Myoidzellen"],
-          correct: 0,
-          explanation: "Sertoli-Zellen sind Ammenzellen. Ihre tight junctions verhindern, dass das eigene Immunsystem die genetisch fremden haploiden Spermien angreift.",
-          info: "Richtig! Tight Junctions zwischen Sertoli-Zellen schützen haploide Keimzellen."
-        },
-        {
-          id: "t2_q2",
-          q: "Wo und durch wen wird die Hauptmenge des Testosterons synthetisiert?",
-          opts: ["Sertoli-Zellen im Kanal", "Leydig-Zwischenzellen im Stroma", "Spermatogonien"],
-          correct: 1,
-          explanation: "Leydig-Zellen liegen *außerhalb* der Samenkanälchen im Interstitium (Stroma) und reagieren spezifisch auf das Hormon LH.",
-          info: "Korrekt! Leydig-Zellen bilden Testosteron auf ein Signal von LH hin."
-        },
-        {
-          id: "t2_q3",
-          q: "Welcher Chromosomensatz liegt nach Abschluss der Meiose I vor?",
-          opts: ["Diploid (2n)", "Haploid (1n)", "Tetraploid (4n)"],
-          correct: 1,
-          explanation: "Die Meiose I ist die Reduktionsteilung. Aus der diploiden Mutterzelle (2n) wird erstmals ein haploider Satz (1n) in den sekundären Spermatozyten.",
-          info: "Exakt! Meiose I reduziert den Chromosomensatz von diploid auf haploid."
-        }
-      ],
-      summary: "Sertoli-Zellen bauen über Tight Junctions die immunologische Blut-Hoden-Schranke auf. Die Leydig-Zwischenzellen im Stroma produzieren Testosteron. Während der Meiose I erfolgt der Übergang vom diploiden zum haploiden Chromosomensatz.",
-      unlocked: false,
-      passedQuizzes: [false, false, false]
-    },
-    {
-      title: "TOPIC 3: REIFUNG & HORMONACHSE",
-      studyText: "In der Spermiogenese wandeln sich runde Spermatiden ohne weitere Zellteilungen morphologisch zu geißeltragenden Spermatozoen um. FSH wirkt direkt auf Sertoli-Zellen zur Unterstützung der Spermienreifung, während LH die Leydig-Zellen aktiviert. Ein Anstieg von Testosteron hemmt über negative Rückkopplung die Abgabe von GnRH und LH.",
-      svgDiagram: `
-        <div class="diagram-wrap">
-          <svg viewBox="0 0 300 110" style="width:100%; max-height:110px;">
-            <text x="150" y="20" fill="#06b6d4" font-size="9" text-anchor="middle" font-family="monospace">Hypothalamus (GnRH)</text>
-            <path d="M 150 25 L 150 40" stroke="#3b82f6" stroke-width="2"/>
-            <text x="150" y="52" fill="#3b82f6" font-size="9" text-anchor="middle" font-family="monospace">Hypophyse (FSH / LH)</text>
-            <path d="M 110 58 L 70 78" stroke="#06b6d4" stroke-width="1.5"/>
-            <path d="M 190 58 L 230 78" stroke="#ef4444" stroke-width="1.5"/>
-            <text x="60" y="92" fill="#06b6d4" font-size="8" text-anchor="middle" font-family="monospace">Sertoli (FSH)</text>
-            <text x="240" y="92" fill="#ef4444" font-size="8" text-anchor="middle" font-family="monospace">Leydig (LH)</text>
-          </svg>
-        </div>
-      `,
-      flashcards: [
-        { term: "Spermiogenese", def: "Reine morphologische Reifung (Geißel- & Akrosombildung) ohne weitere Zellteilungen." },
-        { term: "FSH-Wirkung", def: "Stimuliert gezielt Sertoli-Zellen und fordert die Reifung der Keimzellen." },
-        { term: "Negative Rückkopplung", def: "Testosteron hemmt die Freisetzung von GnRH (Hypothalamus) und LH (Hypophyse)." }
-      ],
-      quizzes: [
-        {
-          id: "t3_q1",
-          q: "Was kennzeichnet den Prozess der Spermiogenese?",
-          opts: ["Mitotische Zellvermehrung", "Reine Differenzierung (Geißel/Akrosom)", "Verdopplung des Erbguts"],
-          correct: 1,
-          explanation: "Verwechsle nicht Spermatogenese (Gesamtprozess) mit Spermio-genese! Spermiogenese ist der letzte Teilschritt: Der Umbau der runden Spermatide zum fertigen Spermatozoon.",
-          info: "Richtig! Es ist eine reine morphologische Umgestaltung ohne Zellteilung."
-        },
-        {
-          id: "t3_q2",
-          q: "Welches Hormon stimuliert gezielt die Sertoli-Zellen?",
-          opts: ["FSH", "LH", "Progesteron"],
-          correct: 0,
-          explanation: "Eselsbrücke: FSH = Sertoli-Zellen (Spermienreifung), LH = Leydig-Zellen (Luteinisierendes Hormon/Testosteron).",
-          info: "Korrekt! FSH wirkt auf Sertoli-Zellen, LH wirkt auf Leydig-Zellen."
-        },
-        {
-          id: "t3_q3",
-          q: "Wie reagiert der Regelkreis auf hohe Testosteronwerte?",
-          opts: ["Erhöhte LH-Ausschüttung", "Negative Rückkopplung (Hemmung)", "Stimulation von GnRH"],
-          correct: 1,
-          explanation: "Ein hoher Testosteronspiegel meldet dem Gehirn 'genug produziert'. Hypothalamus und Hypophyse drosseln daraufhin GnRH und LH.",
-          info: "Exakt! Testosteron bremst die Signale von Hypothalamus und Hypophyse ab."
-        }
-      ],
-      summary: "Die Spermiogenese ist die reine morphologische Differenzierung ohne Zellteilung. Die Steuerung erfolgt über FSH (Sertoli-Zellen) und LH (Leydig-Zellen), wobei Testosteron den Regelkreis über negative Rückkopplung bremst.",
-      unlocked: false,
-      passedQuizzes: [false, false, false]
-    }
-  ];
 
-  let currentTopicIdx = 0;
-  let currentQuizSubIdx = 0;
-  let currentFlashIdx = 0;
-  let currentMode = 'study'; 
-  let timeElapsed = stats.time || 0;
-
-  setInterval(() => {
-    timeElapsed++;
-    stats.time = timeElapsed;
-    const timerEl = document.getElementById('timer');
-    if (timerEl) {
-      const m = String(Math.floor(timeElapsed / 60)).padStart(2, '0');
-      const s = String(timeElapsed % 60).padStart(2, '0');
-      timerEl.innerText = `${m}:${s}`;
-    }
-    saveStats();
-  }, 1000);
-
-  function setMode(mode) {
-    currentMode = mode;
-    const btnStudy = document.getElementById('btn-study');
-    const btnFlash = document.getElementById('btn-flash');
-    const btnQuiz = document.getElementById('btn-quiz');
-    const btnReview = document.getElementById('btn-review');
-
-    if (btnStudy) btnStudy.className = `mode-btn ${mode === 'study' ? 'active' : ''}`;
-    if (btnFlash) btnFlash.className = `mode-btn ${mode === 'flash' ? 'active' : ''}`;
-    if (btnQuiz) btnQuiz.className = `mode-btn ${mode === 'quiz' ? 'active' : ''}`;
-    if (btnReview) btnReview.className = `mode-btn review-btn ${mode === 'review' ? 'active' : ''}`;
-
-    currentQuizSubIdx = 0;
-    currentFlashIdx = 0;
-    loadContent();
-  }
-
-  function renderGrid() {
-    const grid = document.getElementById('grid');
-    if (!grid) return;
-
-    grid.innerHTML = '';
-    topics.forEach((t, idx) => {
-      const btn = document.createElement('button');
-      btn.className = `topic-btn ${t.unlocked ? 'unlocked' : ''} ${idx === currentTopicIdx ? 'active' : ''}`;
-      btn.innerText = `TOPIC 0${idx + 1}`;
-      btn.onclick = () => {
-        if (t.unlocked) {
-          currentTopicIdx = idx;
-          currentQuizSubIdx = 0;
-          currentFlashIdx = 0;
-          if (currentMode === 'review') setMode('quiz');
-          else loadContent();
-        } else {
-          playWrongSound();
-          showFeedback("Schließe zuerst vorherige Module ab!", "wrong");
-        }
-      };
-      grid.appendChild(btn);
-    });
-
-    let totalQuizzes = 9;
-    let passedCount = topics.reduce((acc, top) => acc + top.passedQuizzes.filter(Boolean).length, 0);
-    const progressEl = document.getElementById('progress');
-    if (progressEl) {
-      progressEl.style.width = `${(passedCount / totalQuizzes) * 100}%`;
-    }
-  }
-
-  function loadContent() {
-    renderGrid();
-    updateAnalyticsDisplay();
-
-    const t = topics[currentTopicIdx];
-    const tagArea = document.getElementById('tag-area');
-    const title = document.getElementById('title');
-    const body = document.getElementById('body-text');
-    const interaction = document.getElementById('interaction-area');
-    const feedbackEl = document.getElementById('feedback');
-
-    if (feedbackEl) feedbackEl.innerText = '';
-    if (!tagArea || !title || !body || !interaction) return;
-
-    if (currentMode === 'review') {
-      renderAIReviewModule();
-      return;
-    }
-
-    if (currentMode === 'study') {
-      tagArea.innerHTML = `<span class="badge badge-study">STUDY MATERIAL</span>`;
-      title.innerText = `${t.title} // LEKTION`;
-      body.innerHTML = `${t.studyText} ${t.svgDiagram}<br><br><span style="color:var(--success-green); font-weight:bold;">Kompakte Zusammenfassung:</span><br>${t.summary}`;
-      
-      interaction.innerHTML = `
-        <button class="action-btn" onclick="setMode('flash')">CARDS LERNEN (&rarr;)</button>
-        <button class="action-btn secondary" onclick="setMode('quiz')">DIREKT ZUM QUIZ</button>
-      `;
-    } 
-    else if (currentMode === 'flash') {
-      tagArea.innerHTML = `<span class="badge badge-flash">FLASHCARD 0${currentFlashIdx + 1} / 03</span>`;
-      title.innerText = `${t.title} // CARDS`;
-      body.innerHTML = `Klicke auf die Karte, um die Definition einzusehen:`;
-
-      const cardData = t.flashcards[currentFlashIdx];
-      interaction.innerHTML = `
-        <div class="flashcard-container" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
-          <div class="flashcard">
-            <div class="card-face card-front">
-              ${cardData.term}
-              <div class="card-hint">[ Klick zum Umdrehen ]</div>
+        <!-- 2. FLASHCARD MODE -->
+        <div id="view-flashcard" class="view-panel">
+            <div class="card-container" id="flashcard" onclick="flipCard()">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-label">BEGRIFF (LATIN)</div>
+                        <div class="card-text" id="card-term">...</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-label">POSTER-DEFINITION</div>
+                        <div class="card-text" id="card-def" style="font-size: 13px;">...</div>
+                    </div>
+                </div>
             </div>
-            <div class="card-face card-back">
-              ${cardData.def}
+            <button class="btn-action" style="background: var(--border-color);" onclick="nextCard()">NÄCHSTE KARTE</button>
+        </div>
+
+        <!-- 3. QUIZ MODE -->
+        <div id="view-quiz" class="view-panel">
+            <div id="quiz-question" style="font-size: 14px; font-weight: bold; margin-bottom: 12px;"></div>
+            <div id="quiz-options"></div>
+        </div>
+
+        <!-- 4. LATIN / DOCCHECK MODE (NEW 5TH CATEGORY) -->
+        <div id="view-doccheck" class="view-panel">
+            <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 8px;">
+                EXACT POSTER TERMINOLOGY // DOCCHECK EXPLANATIONS
             </div>
-          </div>
+            <div id="doccheck-list" style="overflow-y: auto; max-height: 100%;"></div>
         </div>
-        <button class="action-btn" onclick="nextCard()">NÄCHSTE KARTE (&rarr;)</button>
-      `;
-    }
-    else {
-      if (currentQuizSubIdx < 3) {
-        let qData = t.quizzes[currentQuizSubIdx];
-        tagArea.innerHTML = `<span class="badge badge-quiz">QUIZ 0${currentQuizSubIdx + 1} VON 03</span>`;
-        title.innerText = `${t.title} // FRAGE 0${currentQuizSubIdx + 1}`;
-        body.innerText = qData.q;
 
-        interaction.innerHTML = '';
-        qData.opts.forEach((opt, oIdx) => {
-          let b = document.createElement('button');
-          b.className = 'opt-btn';
-          b.innerText = `${String.fromCharCode(65 + oIdx)}) ${opt}`;
-          b.onclick = () => handleAnswer(oIdx);
-          interaction.appendChild(b);
-        });
-      } else {
-        tagArea.innerHTML = `<span class="badge badge-summary">ZUSAMMENFASSUNG</span>`;
-        title.innerText = `${t.title} // RECAP`;
-        body.innerHTML = t.summary;
+        <!-- 5. AI DIAGNOSTIC REVIEW -->
+        <div id="view-review" class="view-panel">
+            <div style="font-size: 12px; font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 6px;">
+                > SYSTEM_FEHLER_LOGBUCH (LOCAL_STORAGE)
+            </div>
+            <div class="terminal-log" id="review-logs">
+                [SYSTEM]: Keine Fehlversuche aufgezeichnet.
+            </div>
+            <button class="btn-action" style="background: var(--accent-red); margin-top: 10px;" onclick="clearLogs()">SPEICHER LÖSCHEN</button>
+        </div>
+    </main>
 
-        if (currentTopicIdx + 1 < topics.length) {
-          interaction.innerHTML = `<button class="action-btn" onclick="nextTopic()">NÄCHSTES TOPIC FREISCHALTEN (&rarr;)</button>`;
-        } else {
-          interaction.innerHTML = `
-            <div style="text-align:center; color:var(--success-green); font-weight:bold; font-family:var(--font-code); margin-bottom:8px;">ALLE MODULE ERFOLGREICH BEENDET!</div>
-            <button class="action-btn purple" onclick="setMode('review')">PERSÖNLICHE AI-REVIEW STARTEN 🤖</button>
-          `;
+    <script>
+        // AUDIO FEEDBACK SYNTHESIS (Web Audio API)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSuccessSound() {
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(523.25, now); // C5
+            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15); // E5
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.2);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.2);
         }
-      }
-    }
-  }
 
-  function renderAIReviewModule() {
-    const tagArea = document.getElementById('tag-area');
-    const title = document.getElementById('title');
-    const body = document.getElementById('body-text');
-    const interaction = document.getElementById('interaction-area');
+        function playFailureSound() {
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(130.81, now); // C3
+            osc.frequency.exponentialRampToValueAtTime(65.41, now + 0.3); // C2 ("bowomp")
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.linearRampToValueAtTime(0, now + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+        }
 
-    tagArea.innerHTML = `<span class="badge badge-review">AI DIAGNOSTIC CONSOLE</span>`;
-    title.innerText = `PERSONALISIERTE FEHLERANALYSE & EVALUATION`;
+        // DATA STORE (PULLED STRICTLY FROM POSTER MATERIAL)
+        const appData = {
+            topics: [
+                {
+                    title: "Anatomie & Temperatur",
+                    study: `
+                        <b>Hoden (Testis):</b> Männliche Keimdrüse im Hodensack (Skrotum). Erfüllt zwei Hauptfunktionen: Bildung von Spermien (Spermatogenese) und Produktion von Testosteron.<br><br>
+                        <b>Aufbau:</b> Umgeben von einer Bindegewebskapsel (<i>Tunica albuginea</i>). Von dort ziehen Bindegewebssepten (<i>Septula testis</i>) ins Innere und teilen den Hoden in ca. 250 Hodenläppchen (<i>Lobuli testis</i>).<br><br>
+                        <b>Hodensack (Skrotum):</b> Haut- und Muskeltasche. Die Temperatur liegt <b>2–4 °C unter der normalen Körpertemperatur</b>. Der <i>M. cremaster</i> zieht den Hoden bei Kälte näher an den Körper; bei Wärme entspannt er sich zur Kühlung.<br><br>
+                        <b>Nebenhoden (Epididymis):</b> Gangsystem bestehend aus Kopf (<i>Caput</i>), Körper (<i>Corpus</i>) und Schwanz (<i>Cauda</i>). Dient der Reifung und Speicherung. Im Schwanz (<i>Cauda epididymidis</i>) werden reife Spermien gespeichert.
+                    `,
+                    cards: [
+                        { term: "Tunica albuginea", def: "Bindegewebskapsel, die den Hoden umgibt." },
+                        { term: "Septula testis", def: "Bindegewebssepten, die den Hoden in ca. 250 Lobuli testis unterteilen." },
+                        { term: "Cauda epididymidis", def: "Schwanz des Nebenhodens; spezifischer Ort der Speicherung reifer Spermien." },
+                        { term: "M. cremaster", def: "Cremaster-Muskel; reguliert den Abstand der Hoden zum Körper zur Temperaturkontrolle." }
+                    ],
+                    quizzes: [
+                        {
+                            q: "Um wie viel Grad liegt die Temperatur im Skrotum unter der Körpertemperatur?",
+                            options: ["1–2 °C", "2–4 °C", "5–6 °C", "0.5–1 °C"],
+                            correct: 1,
+                            explain: "Laut Poster liegt die optimale Temperatur für die Spermienbildung im Skrotum genau 2–4 °C unter der normalen Körpertemperatur."
+                        },
+                        {
+                            q: "Wo genau werden reife Spermien im Nebenhoden gespeichert?",
+                            options: ["Caput epididymidis", "Corpus epididymidis", "Cauda epididymidis", "Tunica albuginea"],
+                            correct: 2,
+                            explain: "Das Poster ordnet die Speicherung reifer Spermien spezifisch dem Schwanz (Cauda epididymidis) zu."
+                        },
+                        {
+                            q: "Welche Struktur unterteilt den Hoden in ca. 250 Läppchen (Lobuli testis)?",
+                            options: ["Septula testis", "Ductus deferens", "Plexus pampiniformis", "Rete testis"],
+                            correct: 0,
+                            explain: "Die Septula testis sind Bindegewebssepten, die von der Tunica albuginea ins Innere ziehen."
+                        }
+                    ]
+                },
+                {
+                    title: "Histologie & Zellen",
+                    study: `
+                        <b>Samenkanälchen (Tubuli seminiferi):</b> Vielfach gewundene Kanälchen in den Hodenläppchen; der eigentliche Ort der Spermatogenese. In der Wand liegen Keimzellen sowie <b>Sertoli-Zellen</b>.<br><br>
+                        <b>Sertoli-Zellen:</b> Wichtige Funktion als Ammenzellen; sie befinden sich in der Wand der Samenkanälchen zur Unterstützung und Ernährung der Keimzellen.<br><br>
+                        <b>Leydig-Zellen:</b> Liegen im Zwischengewebe (interstitiell) zwischen den Samenkanälchen. Sie sind für die endokrine Funktion zuständig: Produktion des Männlichkeitshormons Testosteron.<br><br>
+                        <b>Verbindung:</b> Die Samenkanälchen münden in das Hodennetzwerk (<i>Rete testis</i>).
+                    `,
+                    cards: [
+                        { term: "Tubuli seminiferi", def: "Samenkanälchen; Ort der Bildung und Entwicklung männlicher Keimzellen." },
+                        { term: "Sertoli-Zellen", def: "Ammenzellen in der Wand der Samenkanälchen zur Betreuung der Keimzellen." },
+                        { term: "Leydig-Zellen", def: "Zwischenzellen im Bindegewebe; produzieren das Sexualhormon Testosteron." },
+                        { term: "Rete testis", def: "Hodennetz, in das die Samenkanälchen münden." }
+                    ],
+                    quizzes: [
+                        {
+                            q: "Wo befinden sich die Leydig-Zwischenzellen?",
+                            options: ["In der Wand der Tubuli", "Im Zwischengewebe zwischen den Samenkanälchen", "Im Caput epididymidis", "Direkt im Rete testis"],
+                            correct: 1,
+                            explain: "Leydig-Zellen liegen interstitiell im Bindegewebe zwischen den gewundenen Samenkanälchen."
+                        },
+                        {
+                            q: "Welche Funktion wird den Sertoli-Zellen im Poster zugewiesen?",
+                            options: ["Testosteronsynthese", "Ammenzellen / Unterstützung der Keimzellen", "Spermienbewegung", "Kühlung des Skrotums"],
+                            correct: 1,
+                            explain: "Sertoli-Zellen dienen als unterstützende Ammenzellen im Keimepithel der Samenkanälchen."
+                        },
+                        {
+                            q: "Wie heißt das Netzwerk, in das die Tubuli seminiferi münden?",
+                            options: ["Septula testis", "Lobuli testis", "Rete testis", "Ductus deferens"],
+                            correct: 2,
+                            explain: "Das Rete testis (Hodennetz) nimmt die Spermien aus den Samenkanälchen auf."
+                        }
+                    ]
+                },
+                {
+                    title: "Reifung & Hormonachse",
+                    study: `
+                        <b>Spermatogenese (Ablauf & Chromosomen):</b><br>
+                        • <b>Mitose:</b> Diploide Spermatogonien (2n, 46 Chr.) vermehren sich $\\rightarrow$ Primäre Spermatozyten (2n).<br>
+                        • <b>Meiose I:</b> Reifeteilung 1 halbiert den Chromosomensatz $\\rightarrow$ Sekundäre Spermatozyten (n, haploid).<br>
+                        • <b>Meiose II:</b> Reifeteilung 2 $\\rightarrow$ 4 haploide Spermatiden (n, 23 Chr.).<br>
+                        • <b>Spermiogenese:</b> Reifung (61–74 Tage) der Spermatiden zu funktionstüchtigen Spermien (Spermatozoen).<br><br>
+                        <b>Hormonelle Steuerung (Hypothalamus-Hypophysen-Achse):</b><br>
+                        Hypothalamus schüttet <b>Gonadoliberin (GnRH)</b> aus $\\rightarrow$ Regt Hypophyse zur Ausschüttung von <b>LH</b> (Luteinisierendes Hormon) und <b>FSH</b> an.<br>
+                        • <b>LH:</b> Stimuliert Leydig-Zellen zur Testosteronsynthese.<br>
+                        • <b>Testosteron:</b> Fördert Spermatogenese, Libido, Behaarung, Muskelmasse.<br>
+                        • <b>Negative Rückkopplung:</b> Ein steigender Testosteronspiegel blockiert die Gonadoliberin-Freisetzung, um extreme Schwankungen zu verhindern.
+                    `,
+                    cards: [
+                        { term: "Spermatogonien", def: "Diploide Stammzellen (2n, 46 Chromosomen); vermehren sich durch Mitose." },
+                        { term: "Spermiogenese", def: "Differenzierung/Reifung der Spermatiden zu Spermien (dauert 61–74 Tage)." },
+                        { term: "LH (Luteinisierendes Hormon)", def: "Hypophysenhormon; stimuliert die Leydig-Zellen zur Testosteronbildung." },
+                        { term: "Negative Rückkopplung", def: "Hemmung der GnRH-Ausschüttung durch hohe Testosteronspiegel zur Hormonkonstanz." }
+                    ],
+                    quizzes: [
+                        {
+                            q: "Welches Ergebnis liefert die Meiose I bei den Keimzellen?",
+                            options: ["Diploide Spermatogonien (2n)", "Sekundäre Spermatozyten mit haploidem Satz (n)", "Funktionstüchtige Spermien", "Spermatiden mit 46 Chromosomen"],
+                            correct: 1,
+                            explain: "In Meiose I wird der Chromosomensatz von diploid (2n) auf haploid (n) halbiert."
+                        },
+                        {
+                            q: "Welches Hormon regt die Leydig-Zellen direkt zur Testosteronproduktion an?",
+                            options: ["FSH", "LH (Luteinisierendes Hormon)", "GnRH", "Progesteron"],
+                            correct: 1,
+                            explain: "LH aus der Hypophyse stimuliert spezifisch die Leydig-Zellen zur Synthese von Testosteron."
+                        },
+                        {
+                            q: "Wie lange dauert die Reifung (Spermiogenese) laut den Posterangaben?",
+                            options: ["28 Tage", "61–74 Tage", "100 Tage", "12–14 Tage"],
+                            correct: 1,
+                            explain: "Die Transformation von Spermatiden zu reifen Spermien ist auf dem Poster mit 61–74 Tagen angegeben."
+                        }
+                    ]
+                }
+            ],
 
-    if (!stats.flaws || stats.flaws.length === 0) {
-      body.innerHTML = `
-        <div class="ai-console">
-          <div class="ai-header">🤖 CYTOS_AI // FEHLERANALYSE STATUS</div>
-          <div style="color:var(--success-green); font-size:0.85rem; padding:10px 0;">
-            ✓ KEINE SCHWACHSTELLEN GEFUNDEN! Du hast alle Fragen ohne Fehlversuche gemeistert. Perfektes Verständnis der Histologie und Endokrinologie.
-          </div>
-        </div>
-      `;
-      interaction.innerHTML = `<button class="action-btn secondary" onclick="setMode('study')">ZURÜCK ZUM STUDIUM</button>`;
-      return;
-    }
+            // 5TH CATEGORY: LATIN TERMINOLOGY WITH DOCCHECK DEFINITIONS
+            doccheck: [
+                { term: "Testis (Hoden)", def: "Männliche Keimdrüse (Gonade) zur Produktion von Spermien und Androgenen (Testosteron).", tag: "Anatomie" },
+                { term: "Skrotum (Hodensack)", def: "Kutaner Muskeleinschluß außerhalb der Bauchhöhle zur Thermoregulation der Hoden.", tag: "Anatomie" },
+                { term: "Epididymis (Nebenhoden)", def: "Dem Hoden aufgelagertes Gangsystem (Caput, Corpus, Cauda) zur Reifung und Speicherung von Spermien.", tag: "Anatomie" },
+                { term: "Tunica albuginea", def: "Straffe, kollagene Bindegewebskapsel, die das Hodenparenchym schützend umhüllt.", tag: "Histologie" },
+                { term: "Septula testis", def: "Bindegewebsstraßen, die von der Tunica albuginea aus das Hodeninnere in Lobuli unterteilen.", tag: "Histologie" },
+                { term: "Lobuli testis", def: "Hodenläppchen (ca. 250 pro Hoden), die die gewundenen Samenkanälchen enthalten.", tag: "Histologie" },
+                { term: "Tubuli seminiferi", def: "Samenkanälchen; Ort der Keimzellproliferation und Spermatogenese.", tag: "Histologie" },
+                { term: "Rete testis", def: "Intratestikuläres Netzwerk von Kanälchen im Mediastinum testis zum Transport der Spermien.", tag: "Anatomie" },
+                { term: "Ductus deferens", def: "Samenleiter; dickwandiger Muskelschlauch zum Transport der Spermien beim Ejakulat.", tag: "Anatomie" },
+                { term: "Sertoli-Zellen", def: "Epitheliale Stützzellen ('Ammenzellen') in den Tubuli seminiferi zur Ernährung der Keimzellen.", tag: "Histologie" },
+                { term: "Leydig-Zellen", def: "Interstitielle Steroidzellen im Bindegewebe zwischen den Tubuli; Hauptbildungsort von Testosteron.", tag: "Histologie" },
+                { term: "Spermatogonien", def: "Diploide Stammzellen an der Basalmembran der Samenkanälchen.", tag: "Spermatogenese" },
+                { term: "Spermatiden", def: "Haploide Zellen, die aus der zweiten meiotischen Teilung hervorgehen.", tag: "Spermatogenese" },
+                { term: "Spermiogenese", def: "Morphologische Differenzierung von der haploiden Spermatide zum funktionellen Spermium.", tag: "Spermatogenese" },
+                { term: "Plexus pampiniformis", def: "Venengeflecht des Samenstrangs; dient dem getrennten Wärmeaustausch für die Hodentemperatur.", tag: "Anatomie" }
+            ]
+        };
 
-    const uniqueFlaws = [];
-    const seen = new Set();
-    stats.flaws.forEach(f => {
-      if (f && f.qId && !seen.has(f.qId)) {
-        seen.add(f.qId);
-        uniqueFlaws.push(f);
-      }
-    });
+        // APP STATE
+        let currentMode = 'study';
+        let currentTopic = 0;
+        let cardIndex = 0;
 
-    let flawsHTML = uniqueFlaws.map((f, i) => `
-      <div class="mistake-card">
-        <div class="mistake-title">⚠️ SCHWACHSTELLE #${i+1}: ${f.topicTitle || 'Allgemein'}</div>
-        <div style="color:var(--text-main); font-weight:600;">Frage: "${f.question}"</div>
-        <div style="color:var(--alert-red); margin-top:2px;">Dein Irrtum: Choice "${f.userChoice}"</div>
-        <div class="mistake-fix">➔ Richtig: "${f.correctChoice}"</div>
-        <div style="margin-top:6px; color:var(--text-muted); font-size:0.75rem; border-top:1px dashed var(--dim-border); padding-top:4px;">
-          <strong>AI-Erklärung:</strong> ${f.explanation}
-        </div>
-      </div>
-    `).join('');
+        // NAVIGATION LOGIC
+        function switchMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
 
-    let aiAdvise = "";
-    if (uniqueFlaws.length >= 3) {
-      aiAdvise = "Du zeigst noch Verwechslungen bei Fachbegriffen und Steuerungskreisen. Fokussiere dich auf die präzise Unterscheidung zwischen Hormonen (FSH/LH) und Zelltypen.";
-    } else if (uniqueFlaws.find(f => f.qId && f.qId.includes('t3'))) {
-      aiAdvise = "Hauptsächlicher Orientierungsbedarf liegt im hormonellen Regelkreis (Topic 3). Wiederhole die Rückkopplungsmechanismen von Testosteron.";
-    } else {
-      aiAdvise = "Sehr solide Gesamtleistung! Ein paar Detailunreinheiten bei histologischen Bezeichnungen wurden identifiziert. Nachfolgend sind deine Korrekturen.";
-    }
+            // Toggle top topic bar (only relevant for study/flashcard/quiz)
+            const topicBar = document.getElementById('topic-bar');
+            if (mode === 'doccheck' || mode === 'review') {
+                topicBar.style.display = 'none';
+            } else {
+                topicBar.style.display = 'flex';
+            }
 
-    body.innerHTML = `
-      <div class="ai-console">
-        <div class="ai-header">🤖 CYTOS_AI // DIAGNOSE-BERICHT (${uniqueFlaws.length} FLAWS DETECTED)</div>
-        <div class="ai-recommendation" style="margin-bottom:12px;">
-          <strong>AI Evaluator:</strong> "${aiAdvise}"
-        </div>
-        ${flawsHTML}
-      </div>
-    `;
+            event.target.classList.add('active');
+            document.getElementById(`view-${mode}`).classList.add('active');
 
-    interaction.innerHTML = `
-      <button class="action-btn purple" onclick="resetFlawsAndRetry()">FEHLER ZURÜCKSETZEN & NEU STARTEN</button>
-      <button class="action-btn secondary" onclick="setMode('study')">ZURÜCK ZUM GEWÖHNLICHEN LERNEN</button>
-    `;
-  }
+            renderCurrentView();
+        }
 
-  function resetFlawsAndRetry() {
-    stats.flaws = [];
-    saveStats();
-    currentTopicIdx = 0;
-    setMode('study');
-  }
+        function switchTopic(index) {
+            currentTopic = index;
+            document.querySelectorAll('.topic-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+            cardIndex = 0;
+            renderCurrentView();
+        }
 
-  function nextCard() {
-    const t = topics[currentTopicIdx];
-    if (currentFlashIdx + 1 < t.flashcards.length) {
-      currentFlashIdx++;
-      loadContent();
-    } else {
-      setMode('quiz');
-    }
-  }
+        // RENDERING VIEWS
+        function renderCurrentView() {
+            if (currentMode === 'study') {
+                document.getElementById('study-content').innerHTML = appData.topics[currentTopic].study;
+            } 
+            else if (currentMode === 'flashcard') {
+                const card = appData.topics[currentTopic].cards[cardIndex];
+                document.getElementById('card-term').innerText = card.term;
+                document.getElementById('card-def').innerText = card.def;
+                document.getElementById('flashcard').classList.remove('flipped');
+            } 
+            else if (currentMode === 'quiz') {
+                renderQuiz();
+            } 
+            else if (currentMode === 'doccheck') {
+                renderDocCheck();
+            } 
+            else if (currentMode === 'review') {
+                renderLogs();
+            }
+        }
 
-  function handleAnswer(selected) {
-    const t = topics[currentTopicIdx];
-    const qData = t.quizzes[currentQuizSubIdx];
+        // FLASHCARD LOGIC
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
 
-    stats.total++;
+        function nextCard() {
+            const cards = appData.topics[currentTopic].cards;
+            cardIndex = (cardIndex + 1) % cards.length;
+            renderCurrentView();
+        }
 
-    if (selected === qData.correct) {
-      playRightSound();
-      stats.correct++;
-      stats.streak++;
-      t.passedQuizzes[currentQuizSubIdx] = true;
-      showFeedback(`> ${qData.info}`, "correct");
-      
-      saveStats();
+        // QUIZ LOGIC
+        let activeQuizIdx = 0;
+        function renderQuiz() {
+            const quiz = appData.topics[currentTopic].quizzes[activeQuizIdx];
+            document.getElementById('quiz-question').innerText = quiz.q;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
 
-      setTimeout(() => {
-        currentQuizSubIdx++;
-        loadContent();
-      }, 1200);
-    } else {
-      playWrongSound();
-      stats.streak = 0;
+            quiz.options.forEach((opt, idx) => {
+                const div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerText = opt;
+                div.onclick = () => checkAnswer(idx, quiz.correct, quiz.explain, div);
+                optionsContainer.appendChild(div);
+            });
+        }
 
-      if (!stats.flaws) stats.flaws = [];
-      stats.flaws.push({
-        qId: qData.id,
-        topicTitle: t.title,
-        question: qData.q,
-        userChoice: qData.opts[selected],
-        correctChoice: qData.opts[qData.correct],
-        explanation: qData.explanation
-      });
+        function checkAnswer(selected, correct, explain, element) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(opt => opt.onclick = null); // Lock options
 
-      saveStats();
-      showFeedback("> FALSCH. Der Fehler wurde geloggt!", "wrong");
-    }
-  }
+            if (selected === correct) {
+                element.classList.add('correct');
+                playSuccessSound();
+            } else {
+                element.classList.add('incorrect');
+                options[correct].classList.add('correct');
+                playFailureSound();
+                logError(appData.topics[currentTopic].quizzes[activeQuizIdx].q, explain);
+            }
 
-  function nextTopic() {
-    if (currentTopicIdx + 1 < topics.length) {
-      topics[currentTopicIdx + 1].unlocked = true;
-      currentTopicIdx++;
-      currentQuizSubIdx = 0;
-      setMode('study');
-    }
-  }
+            // Auto advance after 2.5s
+            setTimeout(() => {
+                activeQuizIdx = (activeQuizIdx + 1) % appData.topics[currentTopic].quizzes.length;
+                renderQuiz();
+            }, 2500);
+        }
 
-  function showFeedback(msg, type) {
-    const fb = document.getElementById('feedback');
-    if (fb) {
-      fb.className = `feedback ${type}`;
-      fb.innerText = msg;
-    }
-  }
+        // DOCCHECK RENDERER (5TH CATEGORY)
+        function renderDocCheck() {
+            const container = document.getElementById('doccheck-list');
+            container.innerHTML = '';
 
-  // Guaranteed execution after DOM load
-  window.addEventListener('DOMContentLoaded', () => {
-    loadContent();
-  });
-  
-</script>
+            appData.doccheck.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'doccheck-card';
+                card.innerHTML = `
+                    <div class="doccheck-term">${item.term}</div>
+                    <div class="doccheck-def">${item.def}</div>
+                    <span class="doccheck-tag">${item.tag}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // DIAGNOSTIC LOGGING (LOCALSTORAGE)
+        function logError(question, explanation) {
+            let logs = JSON.parse(localStorage.getItem('cytos_errors') || '[]');
+            logs.unshift({
+                timestamp: new Date().toLocaleTimeString(),
+                q: question,
+                exp: explanation
+            });
+            localStorage.setItem('cytos_errors', JSON.stringify(logs.slice(0, 10)));
+        }
+
+        function renderLogs() {
+            let logs = JSON.parse(localStorage.getItem('cytos_errors') || '[]');
+            const logContainer = document.getElementById('review-logs');
+            if (logs.length === 0) {
+                logContainer.innerHTML = '[SYSTEM]: Keine Fehlversuche aufgezeichnet. Alle Tests nominal.';
+            } else {
+                logContainer.innerHTML = logs.map(l => 
+                    `[${l.timestamp}] FEHLER:\nFrage: ${l.q}\nErklärung: ${l.exp}\n-------------------`
+                ).join('\n\n');
+            }
+        }
+
+        function clearLogs() {
+            localStorage.removeItem('cytos_errors');
+            renderLogs();
+        }
+
+        // INIT
+        renderCurrentView();
+    </script>
 </body>
 </html>
