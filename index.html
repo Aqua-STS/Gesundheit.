@@ -281,6 +281,692 @@
             overflow-y: auto;
             color: #33ff33;
         }
+		/* Quiz Score Banner */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.streak-badge {
+    color: #ff9d00;
+    font-weight: bold;
+}
+
+.score-badge {
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+/* Screen Flash FX */
+@keyframes streakPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+}
+
+.combo-active {
+    animation: streakPulse 0.2s ease-in-out;
+}
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="sys-title">Navi-Navi-CYTOS v2.5</div>
+        <div class="sys-status">WIRED_PROTOCOL_ONLINE</div>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchMode('study')">LERNEN</button>
+        <button class="nav-btn" onclick="switchMode('flashcard')">CARDS</button>
+        <button class="nav-btn" onclick="switchMode('quiz')">QUIZ</button>
+        <button class="nav-btn" onclick="switchMode('doccheck')">LATIN</button>
+        <button class="nav-btn" onclick="switchMode('review')">LOGS</button>
+    </nav>
+
+    <main>
+        <div class="topic-selector" id="topic-bar">
+            <button class="topic-btn active" onclick="switchTopic(0)">1. Anatomie</button>
+            <button class="topic-btn" onclick="switchTopic(1)">2. Histologie</button>
+            <button class="topic-btn" onclick="switchTopic(2)">3. Reifung</button>
+        </div>
+
+        <div id="view-study" class="view-panel active">
+            <div id="study-content"></div>
+        </div>
+
+        <div id="view-flashcard" class="view-panel">
+            <div class="card-container" id="flashcard" onclick="flipCard()">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-label">BEGRIFF (LATIN)</div>
+                        <div class="card-text" id="card-term">...</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-label">POSTER-DEFINITION</div>
+                        <div class="card-text" id="card-def" style="font-size: 13px;">...</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-action" style="background: var(--border-color);" onclick="nextCard()">NÄCHSTE KARTE</button>
+        </div>
+
+        <div id="view-quiz" class="view-panel">
+<div id="view-quiz" class="view-panel">
+    <div class="quiz-header">
+        <div>SCORE: <span id="quiz-score" class="score-badge">0</span></div>
+        <div>STREAK: <span id="quiz-streak" class="streak-badge">0</span> 🔥</div>
+        <div>BEST: <span id="quiz-highscore" style="color:var(--accent-blue);">0</span></div>
+    </div>
+    <div id="quiz-question" style="font-size: 14px; font-weight: bold; margin-bottom: 12px;"></div>
+    <div id="quiz-options"></div>
+</div>
+        </div>
+
+        <div id="view-doccheck" class="view-panel">
+            <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary); margin-bottom: 8px;">
+                EXAKT DOCCHECK FLEXIKON DEFINITIONEN (UNVERÄNDERT)
+            </div>
+            <div id="doccheck-list" style="overflow-y: auto; max-height: 100%;"></div>
+        </div>
+
+        <div id="view-review" class="view-panel">
+            <div style="font-size: 12px; font-family: var(--font-mono); color: var(--accent-blue); margin-bottom: 6px;">
+                > SYSTEM_FEHLER_LOGBUCH (LOCAL_STORAGE)
+            </div>
+            <div class="terminal-log" id="review-logs">
+                [SYSTEM]: Keine Fehlversuche aufgezeichnet.
+            </div>
+            <button class="btn-action" style="background: var(--accent-red); margin-top: 10px;" onclick="clearLogs()">SPEICHER LÖSCHEN</button>
+        </div>
+    </main>
+
+    <script>
+    <script>
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    // Dynamic Sound System with Pitch Scaling
+    function playDynamicSuccess(streak) {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        // Base frequency rises with high streak
+        const baseFreq = 523.25 * Math.pow(1.05, Math.min(streak, 12));
+        
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, now + 0.15);
+        
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.2);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+    }
+
+    function playFailureSound() {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(130.81, now);
+        osc.frequency.exponentialRampToValueAtTime(65.41, now + 0.3);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+    }
+
+    const appData = {
+        topics: [
+            {
+                title: "Anatomie & Temperatur",
+                study: `
+                    <div class="study-block">
+                        <div class="study-heading">HODEN (TESTIS) & AUFBAU</div>
+                        Der Hoden ist die männliche Keimdrüse im Hodensack (Skrotum). Er erfüllt zwei wesentliche Funktionen: die Bildung männlicher Keimzellen (Spermien) und die Produktion von Testosteron. Der Hoden ist von einer Bindegewebskapsel (Tunica albuginea) umgeben. Von ihr ziehen Bindegewebssepten (Septula testis) ins Innere und unterteilen den Hoden in ca. 250 Hodenläppchen (Lobuli testis).
+                    </div>
+                    <div class="study-block">
+                        <div class="study-heading">HODENSACK (SKROTUM) & TEMPERATUR</div>
+                        Der Hodensack, auch Skrotum genannt, ist eine Haut- und Muskeltasche, in der sich die beiden Hoden und die Nebenhoden befinden. Er liegt außerhalb des Körpers, weil die Hoden eine niedrigere Temperatur als die normale Körpertemperatur benötigen; sie liegt ungefähr 2 bis 4 °C weniger optimal. Wenn es kalt ist, ziehen Muskeln wie der Cremaster-Muskel die Hoden näher an den Körper heran. Dadurch wird Wärme gespeichert. Wenn es warm ist, entspannen sich die Muskeln und die Hoden hängen weiter vom Körper entfernt, sodass Wärme besser abgegeben werden kann.
+                    </div>
+                    <div class="study-block">
+                        <div class="study-heading">NEBENHODEN (EPIDIDYMIS)</div>
+                        Der Nebenhoden ist ein Gangsystem, das der abschließenden Reifung und Speicherung der Spermien dient. Er besteht aus den Bereichen Kopf (Caput), Körper (Corpus) und Schwanz (Cauda). Im Schwanz (Cauda epididymidis) werden die reifen Spermien gespeichert und in den Samenleiter weitergegeben.
+                    </div>
+                `,
+                cards: [
+                    { term: "Tunica albuginea", def: "Bindegewebskapsel, die den Hoden umgibt." },
+                    { term: "Septula testis", def: "Bindegewebssepten, die den Hoden in ca. 250 Lobuli testis unterteilen." },
+                    { term: "Cauda epididymidis", def: "Schwanz des Nebenhodens; Ort der Speicherung reifer Spermien." },
+                    { term: "M. cremaster", def: "Muskel im Hodensack; zieht den Hoden bei Kälte näher an den Körper." }
+                ],
+                quizzes: [
+                    {
+                        q: "Um wie viel Grad liegt die Temperatur im Skrotum unter der Körpertemperatur?",
+                        options: ["1 bis 2 °C", "2 bis 4 °C", "5 bis 6 °C", "0.5 bis 1 °C"],
+                        correct: 1,
+                        explain: "Laut Poster liegt die optimale Temperatur im Skrotum genau 2 bis 4 °C unter der normalen Körpertemperatur."
+                    },
+                    {
+                        q: "Wo genau werden reife Spermien im Nebenhoden gespeichert?",
+                        options: ["Caput epididymidis", "Corpus epididymidis", "Cauda epididymidis", "Tunica albuginea"],
+                        correct: 2,
+                        explain: "Das Poster ordnet die Speicherung reifer Spermien spezifisch dem Schwanz (Cauda epididymidis) zu."
+                    },
+                    {
+                        q: "Welche Struktur unterteilt den Hoden in ca. 250 Läppchen (Lobuli testis)?",
+                        options: ["Septula testis", "Ductus deferens", "Plexus pampiniformis", "Rete testis"],
+                        correct: 0,
+                        explain: "Die Septula testis sind Bindegewebssepten, die von der Tunica albuginea ins Innere ziehen."
+                    }
+                ]
+            },
+            {
+                title: "Histologie & Zellen",
+                study: `
+                    <div class="study-block">
+                        <div class="study-heading">SAMENKANÄLCHEN (TUBULI SEMINIFERI)</div>
+                        Die Samenkanälchen sind vielfach gewundene Kanäle innerhalb der Hodenläppchen. Sie sind der meiste und wichtigste Ort der Spermatogenese, also der Bildung und Entwicklung der männlichen Keimzellen. In ihrer Wand befinden sich verschiedene Entwicklungsstadien der Keimzellen sowie Sertoli-Zellen.
+                    </div>
+                    <div class="study-block">
+                        <div class="study-heading">SERTOLI-ZELLEN & LEYDIG-ZELLEN</div>
+                        Die Sertoli-Zellen liegen innerhalb der Samenkanälchen und dienen als Ammenzellen zur Unterstützung und Ernährung der Keimzellen. Zwischen den Samenkanälchen liegen im Bindegewebe die hormonproduzierenden Leydig-Zellen, welche für die endokrine Funktion zuständig sind und das Sexualhormon Testosteron produzieren.
+                    </div>
+                    <div class="study-block">
+                        <div class="study-heading">ABFLUSS UND NETZWERK</div>
+                        Das Innere der gewundenen Samenkanälchen mündet in das Hodennetzwerk, das als Rete testis bezeichnet wird. Von dort aus gelangen die Spermien weiter in die abführenden Wege des Nebenhodens.
+                    </div>
+                `,
+                cards: [
+                    { term: "Tubuli seminiferi", def: "Samenkanälchen; Ort der Bildung und Entwicklung männlicher Keimzellen." },
+                    { term: "Sertoli-Zellen", def: "Ammenzellen in der Wand der Samenkanälchen zur Betreuung der Keimzellen." },
+                    { term: "Leydig-Zellen", def: "Zwischenzellen im Bindegewebe; produzieren das Sexualhormon Testosteron." },
+                    { term: "Rete testis", def: "Hodennetz, in das die Samenkanälchen münden." }
+                ],
+                quizzes: [
+                    {
+                        q: "Wo befinden sich die Leydig-Zwischenzellen?",
+                        options: ["In der Wand der Tubuli", "Im Bindegewebe zwischen den Samenkanälchen", "Im Caput epididymidis", "Direkt im Rete testis"],
+                        correct: 1,
+                        explain: "Leydig-Zellen liegen im Bindegewebe zwischen den gewundenen Samenkanälchen."
+                    },
+                    {
+                        q: "Welche Funktion wird den Sertoli-Zellen im Poster zugewiesen?",
+                        options: ["Testosteronsynthese", "Ammenzellen zur Unterstützung der Keimzellen", "Spermienbewegung", "Kühlung des Skrotums"],
+                        correct: 1,
+                        explain: "Sertoli-Zellen dienen als unterstützende Ammenzellen im Keimepithel der Samenkanälchen."
+                    },
+                    {
+                        q: "Wie heißt das Netzwerk, in das die Tubuli seminiferi münden?",
+                        options: ["Septula testis", "Lobuli testis", "Rete testis", "Ductus deferens"],
+                        correct: 2,
+                        explain: "Das Rete testis (Hodennetz) nimmt die Spermien aus den Samenkanälchen auf."
+                    }
+                ]
+            },
+            {
+                title: "Reifung & Hormonachse",
+                study: `
+                    <div class="study-block">
+                        <div class="study-heading">SPERMATOGENESE & MEIOSE</div>
+                        Die Spermatogenese ist die Bildung und Reifung von Spermien in den Hoden. Der Prozess beginnt mit den diploiden Spermatogonien (2n, 46 Chromosomen), die sich durch Mitose vervielfältigen. Daraus entstehen primäre Spermatozyten. Diese durchlaufen die Meiose I. Dabei wird der Chromosomensatz halbiert und es entstehen sekundäre Spermatozyten mit haploidem Satz (n, 23 Chromosomen). In der Meiose II werden die haploiden wieder halbiert und es entstehen 4 haploide Spermatiden.
+                    </div>
+                    <div class="study-block">
+                        <div class="study-heading">SPERMIOGENESE</div>
+                        Die Spermatiden entwickeln sich anschließend durch Reifung innerhalb von 61 bis 74 Tagen zu funktionsfähigen Spermien (Spermatozoen). Dieser reine Umwandlungsschritt ohne Zellteilung wird als Spermiogenese bezeichnet.
+                    </div>
+                    <div class="study-block">
+                        <div class="study-heading">HORMONELLE STEUERUNG</div>
+                        Die Testosteronsynthese wird durch das luteinisierende Hormon (LH) aus der Hirnanhangsdrüse in den Leydig-Zellen der Hoden stimuliert. Der Hypothalamus setzt Gonadoliberin frei, welches die Hypophyse zur Ausschüttung von LH anregt. Ein steigender Testosteronspiegel blockiert über eine negative Rückkopplung die weitere Gonadoliberin-Freisetzung, um extreme hormonelle Abweichungen zu verhindern.
+                    </div>
+                `,
+                cards: [
+                    { term: "Spermatogonien", def: "Diploide Stammzellen (2n, 46 Chromosomen); vermehren sich durch Mitose." },
+                    { term: "Spermiogenese", def: "Reifung der Spermatiden zu Spermien; dauert 61 bis 74 Tage." },
+                    { term: "LH (Luteinisierendes Hormon)", def: "Hypophysenhormon; stimuliert die Leydig-Zellen zur Testosteronbildung." },
+                    { term: "Negative Rückkopplung", def: "Hemmung der GnRH-Ausschüttung durch hohe Testosteronspiegel zur Hormonkonstanz." }
+                ],
+                quizzes: [
+                    {
+                        q: "Welches Ergebnis liefert die Meiose I bei den Keimzellen?",
+                        options: ["Diploide Spermatogonien (2n)", "Sekundäre Spermatozyten mit haploidem Satz (n)", "Funktionstüchtige Spermien", "Spermatiden mit 46 Chromosomen"],
+                        correct: 1,
+                        explain: "In Meiose I wird der Chromosomensatz von diploid (2n) auf haploid (n) halbiert."
+                    },
+                    {
+                        q: "Welches Hormon regt die Leydig-Zellen direkt zur Testosteronproduktion an?",
+                        options: ["FSH", "LH (Luteinisierendes Hormon)", "GnRH", "Progesteron"],
+                        correct: 1,
+                        explain: "LH aus der Hypophyse stimuliert spezifisch die Leydig-Zellen zur Synthese von Testosteron."
+                    },
+                    {
+                        q: "Wie lange dauert die Reifung (Spermiogenese) laut den Posterangaben?",
+                        options: ["28 Tage", "61 bis 74 Tage", "100 Tage", "12 bis 14 Tage"],
+                        correct: 1,
+                        explain: "Die Transformation von Spermatiden zu reifen Spermien ist auf dem Poster mit 61 bis 74 Tagen angegeben."
+                    }
+                ]
+            }
+        ],
+
+        doccheck: [
+            { term: "Testis", def: "Die paarig angelegten Hoden sind die männlichen Keimdrüsen (Gonaden). Sie liegen mit den ihnen aufsitzenden Nebenhoden im Skrotum. In ihnen werden die Spermien und das männliche Geschlechtshormon Testosteron gebildet.", tag: "Anatomie" },
+            { term: "Skrotum", def: "Das Skrotum zählt zu den männlichen Geschlechtsorganen. Es handelt sich um eine Hauttasche, welche die Hoden, Nebenhoden, Teile des Samenleiters und das Ende des Samenstrangs enthält.", tag: "Anatomie" },
+            { term: "Epididymis", def: "Der Nebenhoden gehört zu den männlichen Geschlechtsorganen. Er dient als Samenspeicher. In ihm reifen die Samenzellen zu Spermien heran.", tag: "Anatomie" },
+            { term: "Tunica albuginea testis", def: "Der Begriff Tunica albuginea wird in der Anatomie zur Beschreibung verschiedener bindegewebiger Hüllstrukturen verwendet. Es handelt sich dabei um straffes, faserreiches Bindegewebe, das sich durch seine dicht gelagerten Kollagenfasern weißlich darstellt.", tag: "Histologie" },
+            { term: "Septula testis", def: "Die Septula testis sind dünne Bindegewebsstraßen, die von der Tunica albuginea testis ins Innere des Hodens ziehen und das Hodengewebe in mehrere Hodenläppchen (Lobuli testis) unterteilen.", tag: "Histologie" },
+            { term: "Lobuli testis", def: "Als Lobuli testis bezeichnet man die 250-370 Läppchen, in die der Hoden durch die Bindegewebssepten in seinem Inneren unterteilt ist.", tag: "Histologie" },
+            { term: "Tubuli seminiferi", def: "Die Tubuli seminiferi oder Hodenkanälchen sind ein Teil der Samenwege, der sich innerhalb des Hodens befindet und für die Produktion der Spermien verantwortlich ist.", tag: "Histologie" },
+            { term: "Rete testis", def: "Das Rete testis ist ein Netzwerk feiner anastomosierender Kanälchen im Hoden, welches die Samenkanälchen (Tubuli seminiferi) mit den Ductuli efferentes verbindet.", tag: "Anatomie" },
+            { term: "Ductus deferens", def: "Der Ductus deferens ist ein Teil des männlichen Genitaltrakts. Er ist ein geschlängelter, im entfalteten Zustand ca. 50 cm langer muskulärer Gang mit einem kleinen sternförmigen Lumen und einer dicken dreischichtigen Muskulatur. Durch peristaltische Bewegungen werden die Spermien aus dem Ductus epididymidis in den Ductus ejaculatorius weitergeleitet.", tag: "Anatomie" },
+            { term: "Sertoli-Zelle", def: "Die Sertoli-Zellen sind prismatische Zellen der Samenkanälchen (Tubuli seminiferi contorti) im Hoden. Sie entstehen aus Zölomepithel und Zellen des Mesonephros.", tag: "Histologie" },
+            { term: "Leydig-Zwischenzelle", def: "DDie Leydig-Zellen sind die wichtigsten interstitiellen Zellen des Hodens. Sie machen 10 bis 20 % der Organmasse des Hodens aus.", tag: "Histologie" },
+            { term: "Spermatogonium", def: "Als Spermatogonien bezeichnet man die Stammzellen im Keimepithel des Hodens, die beim Mann für die kontinuierliche Produktion von Spermien verantwortlich sind.", tag: "Spermatogenese" },
+            { term: "Spermatide", def: "Spermatiden sind haploide Vorläuferzellen der Spermien, die durch Meiose aus den sekundären Spermatozyten hervorgehen.", tag: "Spermatogenese" },
+            { term: "Spermiogenese", def: "Spermiogenese nennt man die Reifung bzw. Differenzierung der Spermatiden zu den Spermien. Sie ist der letzte Schritt der Spermatogenese.", tag: "Spermatogenese" },
+            { term: "Plexus pampiniformis", def: "Der Plexus pampiniformis ist ein von den Venen des Hodens und Nebenhodens gebildetes Venengeflecht, das sich als Teil des Samenstrangs durch den Leistenkanal verlaufend zur Vena testicularis vereint.", tag: "Anatomie" }
+        ]
+    };
+
+    let currentMode = 'study';
+    let currentTopic = 0;
+    let cardIndex = 0;
+    
+    // Gamification State
+    let streakCount = 0;
+    let sessionScore = 0;
+    let highScore = parseInt(localStorage.getItem('cytos_highscore') || '0', 10);
+    let activeQuizIdx = 0;
+
+    function switchMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+
+        const topicBar = document.getElementById('topic-bar');
+        if (mode === 'doccheck' || mode === 'review') {
+            topicBar.style.display = 'none';
+        } else {
+            topicBar.style.display = 'flex';
+        }
+
+        if (event && event.target) {
+            event.target.classList.add('active');
+        }
+        document.getElementById(`view-${mode}`).classList.add('active');
+
+        renderCurrentView();
+    }
+
+    function switchTopic(index) {
+        currentTopic = index;
+        document.querySelectorAll('.topic-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+        cardIndex = 0;
+        activeQuizIdx = 0;
+        renderCurrentView();
+    }
+
+    function renderCurrentView() {
+        if (currentMode === 'study') {
+            document.getElementById('study-content').innerHTML = appData.topics[currentTopic].study;
+        } 
+        else if (currentMode === 'flashcard') {
+            const card = appData.topics[currentTopic].cards[cardIndex];
+            document.getElementById('card-term').innerText = card.term;
+            document.getElementById('card-def').innerText = card.def;
+            document.getElementById('flashcard').classList.remove('flipped');
+        } 
+        else if (currentMode === 'quiz') {
+            renderQuiz();
+        } 
+        else if (currentMode === 'doccheck') {
+            renderDocCheck();
+        } 
+        else if (currentMode === 'review') {
+            renderLogs();
+        }
+    }
+
+    function flipCard() {
+        document.getElementById('flashcard').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+        const cards = appData.topics[currentTopic].cards;
+        cardIndex = (cardIndex + 1) % cards.length;
+        renderCurrentView();
+    }
+
+    function updateQuizStats() {
+        const scoreElem = document.getElementById('quiz-score');
+        const streakElem = document.getElementById('quiz-streak');
+        const highscoreElem = document.getElementById('quiz-highscore');
+        
+        if (scoreElem) scoreElem.innerText = sessionScore;
+        if (streakElem) streakElem.innerText = streakCount;
+        if (highscoreElem) highscoreElem.innerText = highScore;
+    }
+
+    function renderQuiz() {
+        updateQuizStats();
+        const quiz = appData.topics[currentTopic].quizzes[activeQuizIdx];
+        document.getElementById('quiz-question').innerText = quiz.q;
+        
+        const optionsContainer = document.getElementById('quiz-options');
+        optionsContainer.innerHTML = '';
+
+        quiz.options.forEach((opt, idx) => {
+            const div = document.createElement('div');
+            div.className = 'quiz-option';
+            div.innerText = opt;
+            div.onclick = () => checkAnswer(idx, quiz.correct, quiz.explain, div);
+            optionsContainer.appendChild(div);
+        });
+    }
+
+    function checkAnswer(selected, correct, explain, element) {
+        const options = document.querySelectorAll('.quiz-option');
+        options.forEach(opt => opt.onclick = null);
+
+        if (selected === correct) {
+            element.classList.add('correct');
+            streakCount++;
+            sessionScore += 100 * streakCount;
+            
+            if (sessionScore > highScore) {
+                highScore = sessionScore;
+                localStorage.setItem('cytos_highscore', highScore);
+            }
+            
+            playDynamicSuccess(streakCount);
+            
+            const main = document.querySelector('main');
+            if (main) {
+                main.classList.add('combo-active');
+                setTimeout(() => main.classList.remove('combo-active'), 200);
+            }
+
+        } else {
+            element.classList.add('incorrect');
+            options[correct].classList.add('correct');
+            
+            streakCount = 0;
+            playFailureSound();
+            logError(appData.topics[currentTopic].quizzes[activeQuizIdx].q, explain);
+        }
+
+        updateQuizStats();
+
+        setTimeout(() => {
+            activeQuizIdx = (activeQuizIdx + 1) % appData.topics[currentTopic].quizzes.length;
+            renderQuiz();
+        }, 1200);
+    }
+
+    function renderDocCheck() {
+        const container = document.getElementById('doccheck-list');
+        container.innerHTML = '';
+
+        appData.doccheck.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'doccheck-card';
+            card.innerHTML = `
+                <div class="doccheck-term">${item.term}</div>
+                <div class="doccheck-def">${item.def}</div>
+                <span class="doccheck-tag">${item.tag}</span>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function logError(question, explanation) {
+        let logs = JSON.parse(localStorage.getItem('cytos_errors') || '[]');
+        logs.unshift({
+            timestamp: new Date().toLocaleTimeString(),
+            q: question,
+            exp: explanation
+        });
+        localStorage.setItem('cytos_errors', JSON.stringify(logs.slice(0, 10)));
+    }
+
+    function renderLogs() {
+        let logs = JSON.parse(localStorage.getItem('cytos_errors') || '[]');
+        const logContainer = document.getElementById('review-logs');
+        if (logs.length === 0) {
+            logContainer.innerHTML = '[SYSTEM]: Keine Fehlversuche aufgezeichnet. Alle Tests nominal.';
+        } else {
+            logContainer.innerHTML = logs.map(l => 
+                `[${l.timestamp}] FEHLER:\nFrage: ${l.q}\nErklärung: ${l.exp}\n-------------------`
+            ).join('\n\n');
+        }
+    }
+
+    function clearLogs() {
+        localStorage.removeItem('cytos_errors');
+        renderLogs();
+    }
+
+    renderCurrentView();
+</script>
+</body>
+</html>        }
+
+        .nav-btn.active {
+            background: var(--border-color);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+
+        main {
+            flex: 1;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .view-panel {
+            display: none;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+        }
+
+        .view-panel.active {
+            display: flex;
+        }
+
+        .topic-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .topic-btn {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px;
+            font-size: 11px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .topic-btn.active {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            background: rgba(188, 140, 255, 0.1);
+        }
+
+        .study-block {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .study-heading {
+            font-family: var(--font-mono);
+            color: var(--accent-blue);
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 220px;
+            cursor: pointer;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.4s;
+            transform-style: preserve-3d;
+        }
+
+        .card-container.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-color);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            border-color: var(--accent-blue);
+        }
+
+        .card-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .card-text {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .quiz-option {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: border-color 0.2s;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--accent-green);
+            background: rgba(35, 134, 54, 0.15);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--accent-red);
+            background: rgba(218, 54, 51, 0.15);
+        }
+
+        .doccheck-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-blue);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .doccheck-term {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-blue);
+            margin-bottom: 4px;
+        }
+
+        .doccheck-def {
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--text-primary);
+        }
+
+        .doccheck-tag {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            background: var(--border-color);
+            color: var(--text-secondary);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-top: 6px;
+        }
+
+        .btn-action {
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .terminal-log {
+            background: black;
+            border: 1px solid var(--border-color);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 10px;
+            border-radius: 4px;
+            height: 120px;
+            overflow-y: auto;
+            color: #33ff33;
+        }
     </style>
 </head>
 <body>
