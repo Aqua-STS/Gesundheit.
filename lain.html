@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYTOS_OS // MEDICAL_PRO_MODULE</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: #111827;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #a855f7;
+      --dim-border: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --alert-red: #ef4444;
+      --success-green: #10b981;
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-code: "JetBrains Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: var(--font-main);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--card-bg);
+      border: 1px solid var(--dim-border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--dim-border);
+      margin-bottom: 12px;
+      font-family: var(--font-code);
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+    }
+
+    .analytics-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--dim-border);
+      border-radius: 6px;
+      padding: 8px;
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-weight: bold;
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+      margin-top: 2px;
+    }
+
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+    }
+
+    .mode-switch {
+      display: flex;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--dim-border);
+      border-radius: 6px;
+      padding: 2px;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .mode-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 6px 6px;
+      font-size: 0.65rem;
+      font-family: var(--font-code);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .mode-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .mode-btn.review-btn {
+      color: var(--accent-purple);
+    }
+
+    .mode-btn.review-btn.active {
+      background: var(--accent-purple);
+      color: #fff;
+    }
+
+    .sound-toggle {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--dim-border);
+      color: var(--text-main);
+      padding: 6px 10px;
+      font-size: 0.65rem;
+      font-family: var(--font-code);
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: var(--dim-border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+      transition: width 0.3s ease;
+    }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .topic-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--dim-border);
+      color: var(--text-muted);
+      padding: 8px 4px;
+      font-size: 0.7rem;
+      font-family: var(--font-code);
+      cursor: pointer;
+      text-align: center;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .topic-btn.unlocked {
+      color: var(--accent-cyan);
+      border-color: rgba(6, 182, 212, 0.3);
+    }
+
+    .topic-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      font-weight: bold;
+      border-color: var(--accent-blue);
+    }
+
+    .content-box {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--dim-border);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 280px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-family: var(--font-code);
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-study { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .badge-flash { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+    .badge-quiz { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+    .badge-summary { background: rgba(16, 185, 129, 0.15); color: var(--success-green); }
+    .badge-review { background: rgba(168, 85, 247, 0.25); color: #e9d5ff; border: 1px solid var(--accent-purple); }
+
+    .node-title {
+      font-size: 0.85rem;
+      font-family: var(--font-code);
+      color: var(--accent-cyan);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .node-body {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+
+    .diagram-wrap {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--dim-border);
+      border-radius: 6px;
+      padding: 10px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 12px 0;
+      min-height: 140px;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 140px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      border-radius: 8px;
+    }
+
+    .flashcard.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid var(--dim-border);
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .card-front {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--accent-cyan);
+      font-family: var(--font-code);
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+
+    .card-back {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--text-main);
+      transform: rotateY(180deg);
+      font-size: 0.85rem;
+      line-height: 1.4;
+      border-color: var(--accent-blue);
+    }
+
+    .card-hint {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      font-weight: normal;
+    }
+
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .opt-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--dim-border);
+      color: var(--text-main);
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .opt-btn:hover {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--accent-blue);
+    }
+
+    .action-btn {
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+
+    .action-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--dim-border);
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .action-btn.purple {
+      background: var(--accent-purple);
+      color: #fff;
+    }
+
+    .feedback {
+      min-height: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: var(--font-code);
+      text-align: center;
+    }
+
+    .feedback.correct { color: var(--success-green); }
+    .feedback.wrong { color: var(--alert-red); }
+
+    .ai-console {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid var(--accent-purple);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: var(--font-code);
+      margin-bottom: 12px;
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-purple);
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed var(--dim-border);
+      padding-bottom: 6px;
+    }
+
+    .mistake-card {
+      background: rgba(239, 68, 68, 0.05);
+      border-left: 3px solid var(--alert-red);
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 0.8rem;
+    }
+
+    .mistake-title {
+      color: var(--alert-red);
+      font-weight: bold;
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+    }
+
+    .mistake-fix {
+      color: var(--success-green);
+      margin-top: 4px;
+      font-size: 0.78rem;
+    }
+
+    .ai-recommendation {
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.8rem;
+      line-height: 1.4;
+      color: #e9d5ff;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    <span>CYTOS_OS // MEDICAL_PRO_MODULE</span>
+    <span id="timer">00:00</span>
+  </div>
+
+  <div class="analytics-bar">
+    <div>ACCURACY<div class="stat-val" id="stat-acc">100%</div></div>
+    <div>STREAK<div class="stat-val" id="stat-streak">0 🔥</div></div>
+    <div>FLAWS LOGGED<div class="stat-val" id="stat-flaws" style="color:var(--alert-red)">0</div></div>
+  </div>
+
+  <div class="controls-bar">
+    <div class="mode-switch">
+      <button class="mode-btn active" id="btn-study" onclick="setMode('study')">STUDY</button>
+      <button class="mode-btn" id="btn-flash" onclick="setMode('flash')">CARDS</button>
+      <button class="mode-btn" id="btn-quiz" onclick="setMode('quiz')">QUIZ</button>
+      <button class="mode-btn review-btn" id="btn-review" onclick="setMode('review')">AI REVIEW 🤖</button>
+    </div>
+    <button class="sound-toggle" id="sound-btn" onclick="toggleSound()">SOUND: ON</button>
+  </div>
+
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progress"></div>
+  </div>
+
+  <div class="topic-grid" id="grid"></div>
+
+  <div class="content-box">
+    <div>
+      <div class="tag-row" id="tag-area"></div>
+      <div class="node-title" id="title">INITIALISIERUNG...</div>
+      <div class="node-body" id="body-text"></div>
+    </div>
+    <div class="options-container" id="interaction-area"></div>
+  </div>
+
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<script>
+  let soundEnabled = true;
+  let audioCtx = null;
+
+  // Safe LocalStorage Parser
+  function loadSavedStats() {
+    try {
+      let data = JSON.parse(localStorage.getItem('cytos_stats'));
+      if (data && typeof data === 'object') {
+        if (!Array.isArray(data.flaws)) data.flaws = [];
+        return data;
+      }
+    } catch(e) {}
+    return { correct: 0, total: 0, streak: 0, time: 0, flaws: [] };
+  }
+
+  let stats = loadSavedStats();
+
+  function saveStats() {
+    localStorage.setItem('cytos_stats', JSON.stringify(stats));
+    updateAnalyticsDisplay();
+  }
+
+  function updateAnalyticsDisplay() {
+    const accEl = document.getElementById('stat-acc');
+    const streakEl = document.getElementById('stat-streak');
+    const flawsEl = document.getElementById('stat-flaws');
+
+    if (accEl) {
+      const acc = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 100;
+      accEl.innerText = `${acc}%`;
+    }
+    if (streakEl) streakEl.innerText = `${stats.streak} 🔥`;
+    if (flawsEl) flawsEl.innerText = `${stats.flaws.length}`;
+  }
+
+  function initAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }
+
+  function toggleSound() {
+    soundEnabled = !soundEnabled;
+    const btn = document.getElementById('sound-btn');
+    if (btn) btn.innerText = `SOUND: ${soundEnabled ? 'ON' : 'OFF'}`;
+  }
+
+  function playNote(freq, type, startTime, duration, gainVal = 0.03) {
+    let o = audioCtx.createOscillator();
+    let g = audioCtx.createGain();
+    o.type = type;
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(gainVal, startTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(startTime);
+    o.stop(startTime + duration);
+  }
+
+  function playRightSound() {
+    if (!soundEnabled) return;
+    initAudio();
+    const now = audioCtx.currentTime;
+    const notes = [
+      { f: 329.63, t: 0.00, d: 0.12 },
+      { f: 392.00, t: 0.08, d: 0.12 },
+      { f: 659.25, t: 0.16, d: 0.14 },
+      { f: 523.25, t: 0.24, d: 0.14 },
+      { f: 587.33, t: 0.32, d: 0.16 },
+      { f: 783.99, t: 0.40, d: 0.30 }
+    ];
+    notes.forEach(n => playNote(n.f, 'triangle', now + n.t, n.d, 0.04));
+  }
+
+  function playWrongSound() {
+    if (!soundEnabled) return;
+    initAudio();
+    const now = audioCtx.currentTime;
+    let o = audioCtx.createOscillator();
+    let g = audioCtx.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(160, now);
+    o.frequency.exponentialRampToValueAtTime(45, now + 0.35);
+    g.gain.setValueAtTime(0.05, now);
+    g.gain.linearRampToValueAtTime(0.001, now + 0.35);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start(now);
+    o.stop(now + 0.35);
+  }
+
+  const topics = [
+    {
+      title: "TOPIC 1: ANATOMIE & TEMPERATUR",
+      studyText: "Das Skrotum schützt die Hoden außerhalb der Bauchhöhle, da die Spermiogenese eine Kältezone von 2–4 °C unter der Kerntemperatur verlangt. Die Tunica albuginea unterteilt das Gewebe in ca. 250–300 Lobuli testis. Die Cauda epididymidis im Nebenhodenschwanz fungiert als Hauptspeicherort für funktionell gereifte Spermien.",
+      svgDiagram: `
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 300 120" style="width:100%; max-height:120px;">
+            <rect x="10" y="20" width="80" height="80" rx="40" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+            <text x="50" y="55" fill="#06b6d4" font-size="10" text-anchor="middle" font-family="monospace">Skrotum</text>
+            <text x="50" y="70" fill="#64748b" font-size="8" text-anchor="middle" font-family="monospace">33–35 °C</text>
+            <path d="M 90 60 L 140 60" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4"/>
+            <rect x="140" y="30" width="70" height="60" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+            <text x="175" y="58" fill="#f8fafc" font-size="9" text-anchor="middle" font-family="monospace">T. Albuginea</text>
+            <path d="M 210 60 L 240 60" stroke="#3b82f6" stroke-width="2"/>
+            <circle cx="265" cy="60" r="22" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+            <text x="265" y="58" fill="#10b981" font-size="8" text-anchor="middle" font-family="monospace">Cauda</text>
+            <text x="265" y="68" fill="#64748b" font-size="7" text-anchor="middle" font-family="monospace">(Speicher)</text>
+          </svg>
+        </div>
+      `,
+      flashcards: [
+        { term: "Skrotum-Temperatur", def: "Benötigt 2–4 °C kühler als die Kerntemperatur für optimale Spermiogenese." },
+        { term: "Tunica albuginea", def: "Straffe Bindegewebskapsel, die das Hodeninnere in ca. 250–300 Lobuli gliedert." },
+        { term: "Cauda epididymidis", def: "Der Nebenhodenschwanz; dient als Hauptspeicherort für reife Spermien." }
+      ],
+      quizzes: [
+        {
+          id: "t1_q1",
+          q: "Welche Temperaturdifferenz benötigt die Spermiogenese im Skrotum?",
+          opts: ["2–4 °C kühler", "Exakt Kerntemperatur", "1–2 °C wärmer"],
+          correct: 0,
+          explanation: "Spermien reagieren extrem empfindlich auf Körperwärme. Eine Erhöhung der Temperatur um nur 1-2 °C hemmt die Entwicklung. Deshalb liegen die Hoden extrakorporal im Skrotum.",
+          info: "Richtig! Die Lage außerhalb schützt die Hitze-empfindliche Spermienentwicklung."
+        },
+        {
+          id: "t1_q2",
+          q: "Welche Struktur teilt das Hodeninnere in Lobuli testis ein?",
+          opts: ["Tunica vaginalis", "Tunica albuginea", "Ductus deferens"],
+          correct: 1,
+          explanation: "Die Tunica albuginea ist die derbe, weißliche Bindegewebskapsel des Hodens, von der Bindegewebssepten ins Innere ziehen.",
+          info: "Korrekt! Die Tunica albuginea sendet Septen ins Innere des Hodens."
+        },
+        {
+          id: "t1_q3",
+          q: "Wo werden reife Spermien vor der Ejakulation vorrangig gespeichert?",
+          opts: ["Caput epididymidis", "Cauda epididymidis", "Rete testis"],
+          correct: 1,
+          explanation: "Im Kopf (Caput) reifen sie, aber erst im Schwanz (Cauda) des Nebenhodens lagern sie funktionsfähig bis zur Ejakulation.",
+          info: "Exakt! Die Cauda epididymidis (Nebenhodenschwanz) speichert reife Spermien."
+        }
+      ],
+      summary: "Das Skrotum hält die Hoden kontinuierlich auf 2–4 °C unter Körperkerntemperatur. Die Tunica albuginea gliedert das Hodeninnere straff in Lobuli testis. Die Cauda epididymidis fungiert als primäres Reservoir für die reifen Spermien.",
+      unlocked: true,
+      passedQuizzes: [false, false, false]
+    },
+    {
+      title: "TOPIC 2: HISTOLOGIE & ZELLEN",
+      studyText: "Sertoli-Zellen bilden über enge Tight Junctions die Blut-Hoden-Schranke, die haploide Keimzellen vor Immunangriffen schützt. Leydig-Zwischenzellen liegen im Stroma außerhalb der Samenkanälchen und produzieren unter LH-Einfluss Testosteron. Aus primären Spermatozyten entstehen nach Meiose I haploide sekundäre Spermatozyten.",
+      svgDiagram: `
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 300 110" style="width:100%; max-height:110px;">
+            <rect x="20" y="20" width="110" height="70" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="2"/>
+            <text x="75" y="50" fill="#06b6d4" font-size="9" text-anchor="middle" font-family="monospace">Sertoli-Zellen</text>
+            <text x="75" y="65" fill="#10b981" font-size="8" text-anchor="middle" font-family="monospace">[Tight Junctions]</text>
+            <rect x="170" y="20" width="110" height="70" rx="6" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+            <text x="225" y="50" fill="#ef4444" font-size="9" text-anchor="middle" font-family="monospace">Leydig-Zellen</text>
+            <text x="225" y="65" fill="#f8fafc" font-size="8" text-anchor="middle" font-family="monospace">+ LH → Testosteron</text>
+          </svg>
+        </div>
+      `,
+      flashcards: [
+        { term: "Blut-Hoden-Schranke", def: "Wird durch Tight Junctions der Sertoli-Zellen gebildet, um Autoimmunreaktionen zu verhindern." },
+        { term: "Leydig-Zwischenzellen", def: "Liegen im Stroma zwischen Samenkanälchen und produzieren Testosteron." },
+        { term: "Meiose I Resultat", def: "Reduziert den Chromosomensatz von diploid (2n) auf haploid (1n)." }
+      ],
+      quizzes: [
+        {
+          id: "t2_q1",
+          q: "Welche Zellen bauen die Blut-Hoden-Schranke auf?",
+          opts: ["Sertoli-Zellen", "Leydig-Zellen", "Myoidzellen"],
+          correct: 0,
+          explanation: "Sertoli-Zellen sind Ammenzellen. Ihre tight junctions verhindern, dass das eigene Immunsystem die genetisch fremden haploiden Spermien angreift.",
+          info: "Richtig! Tight Junctions zwischen Sertoli-Zellen schützen haploide Keimzellen."
+        },
+        {
+          id: "t2_q2",
+          q: "Wo und durch wen wird die Hauptmenge des Testosterons synthetisiert?",
+          opts: ["Sertoli-Zellen im Kanal", "Leydig-Zwischenzellen im Stroma", "Spermatogonien"],
+          correct: 1,
+          explanation: "Leydig-Zellen liegen *außerhalb* der Samenkanälchen im Interstitium (Stroma) und reagieren spezifisch auf das Hormon LH.",
+          info: "Korrekt! Leydig-Zellen bilden Testosteron auf ein Signal von LH hin."
+        },
+        {
+          id: "t2_q3",
+          q: "Welcher Chromosomensatz liegt nach Abschluss der Meiose I vor?",
+          opts: ["Diploid (2n)", "Haploid (1n)", "Tetraploid (4n)"],
+          correct: 1,
+          explanation: "Die Meiose I ist die Reduktionsteilung. Aus der diploiden Mutterzelle (2n) wird erstmals ein haploider Satz (1n) in den sekundären Spermatozyten.",
+          info: "Exakt! Meiose I reduziert den Chromosomensatz von diploid auf haploid."
+        }
+      ],
+      summary: "Sertoli-Zellen bauen über Tight Junctions die immunologische Blut-Hoden-Schranke auf. Die Leydig-Zwischenzellen im Stroma produzieren Testosteron. Während der Meiose I erfolgt der Übergang vom diploiden zum haploiden Chromosomensatz.",
+      unlocked: false,
+      passedQuizzes: [false, false, false]
+    },
+    {
+      title: "TOPIC 3: REIFUNG & HORMONACHSE",
+      studyText: "In der Spermiogenese wandeln sich runde Spermatiden ohne weitere Zellteilungen morphologisch zu geißeltragenden Spermatozoen um. FSH wirkt direkt auf Sertoli-Zellen zur Unterstützung der Spermienreifung, während LH die Leydig-Zellen aktiviert. Ein Anstieg von Testosteron hemmt über negative Rückkopplung die Abgabe von GnRH und LH.",
+      svgDiagram: `
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 300 110" style="width:100%; max-height:110px;">
+            <text x="150" y="20" fill="#06b6d4" font-size="9" text-anchor="middle" font-family="monospace">Hypothalamus (GnRH)</text>
+            <path d="M 150 25 L 150 40" stroke="#3b82f6" stroke-width="2"/>
+            <text x="150" y="52" fill="#3b82f6" font-size="9" text-anchor="middle" font-family="monospace">Hypophyse (FSH / LH)</text>
+            <path d="M 110 58 L 70 78" stroke="#06b6d4" stroke-width="1.5"/>
+            <path d="M 190 58 L 230 78" stroke="#ef4444" stroke-width="1.5"/>
+            <text x="60" y="92" fill="#06b6d4" font-size="8" text-anchor="middle" font-family="monospace">Sertoli (FSH)</text>
+            <text x="240" y="92" fill="#ef4444" font-size="8" text-anchor="middle" font-family="monospace">Leydig (LH)</text>
+          </svg>
+        </div>
+      `,
+      flashcards: [
+        { term: "Spermiogenese", def: "Reine morphologische Reifung (Geißel- & Akrosombildung) ohne weitere Zellteilungen." },
+        { term: "FSH-Wirkung", def: "Stimuliert gezielt Sertoli-Zellen und fordert die Reifung der Keimzellen." },
+        { term: "Negative Rückkopplung", def: "Testosteron hemmt die Freisetzung von GnRH (Hypothalamus) und LH (Hypophyse)." }
+      ],
+      quizzes: [
+        {
+          id: "t3_q1",
+          q: "Was kennzeichnet den Prozess der Spermiogenese?",
+          opts: ["Mitotische Zellvermehrung", "Reine Differenzierung (Geißel/Akrosom)", "Verdopplung des Erbguts"],
+          correct: 1,
+          explanation: "Verwechsle nicht Spermatogenese (Gesamtprozess) mit Spermio-genese! Spermiogenese ist der letzte Teilschritt: Der Umbau der runden Spermatide zum fertigen Spermatozoon.",
+          info: "Richtig! Es ist eine reine morphologische Umgestaltung ohne Zellteilung."
+        },
+        {
+          id: "t3_q2",
+          q: "Welches Hormon stimuliert gezielt die Sertoli-Zellen?",
+          opts: ["FSH", "LH", "Progesteron"],
+          correct: 0,
+          explanation: "Eselsbrücke: FSH = Sertoli-Zellen (Spermienreifung), LH = Leydig-Zellen (Luteinisierendes Hormon/Testosteron).",
+          info: "Korrekt! FSH wirkt auf Sertoli-Zellen, LH wirkt auf Leydig-Zellen."
+        },
+        {
+          id: "t3_q3",
+          q: "Wie reagiert der Regelkreis auf hohe Testosteronwerte?",
+          opts: ["Erhöhte LH-Ausschüttung", "Negative Rückkopplung (Hemmung)", "Stimulation von GnRH"],
+          correct: 1,
+          explanation: "Ein hoher Testosteronspiegel meldet dem Gehirn 'genug produziert'. Hypothalamus und Hypophyse drosseln daraufhin GnRH und LH.",
+          info: "Exakt! Testosteron bremst die Signale von Hypothalamus und Hypophyse ab."
+        }
+      ],
+      summary: "Die Spermiogenese ist die reine morphologische Differenzierung ohne Zellteilung. Die Steuerung erfolgt über FSH (Sertoli-Zellen) und LH (Leydig-Zellen), wobei Testosteron den Regelkreis über negative Rückkopplung bremst.",
+      unlocked: false,
+      passedQuizzes: [false, false, false]
+    }
+  ];
+
+  let currentTopicIdx = 0;
+  let currentQuizSubIdx = 0;
+  let currentFlashIdx = 0;
+  let currentMode = 'study'; 
+  let timeElapsed = stats.time || 0;
+
+  setInterval(() => {
+    timeElapsed++;
+    stats.time = timeElapsed;
+    const timerEl = document.getElementById('timer');
+    if (timerEl) {
+      const m = String(Math.floor(timeElapsed / 60)).padStart(2, '0');
+      const s = String(timeElapsed % 60).padStart(2, '0');
+      timerEl.innerText = `${m}:${s}`;
+    }
+    saveStats();
+  }, 1000);
+
+  function setMode(mode) {
+    currentMode = mode;
+    const btnStudy = document.getElementById('btn-study');
+    const btnFlash = document.getElementById('btn-flash');
+    const btnQuiz = document.getElementById('btn-quiz');
+    const btnReview = document.getElementById('btn-review');
+
+    if (btnStudy) btnStudy.className = `mode-btn ${mode === 'study' ? 'active' : ''}`;
+    if (btnFlash) btnFlash.className = `mode-btn ${mode === 'flash' ? 'active' : ''}`;
+    if (btnQuiz) btnQuiz.className = `mode-btn ${mode === 'quiz' ? 'active' : ''}`;
+    if (btnReview) btnReview.className = `mode-btn review-btn ${mode === 'review' ? 'active' : ''}`;
+
+    currentQuizSubIdx = 0;
+    currentFlashIdx = 0;
+    loadContent();
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    topics.forEach((t, idx) => {
+      const btn = document.createElement('button');
+      btn.className = `topic-btn ${t.unlocked ? 'unlocked' : ''} ${idx === currentTopicIdx ? 'active' : ''}`;
+      btn.innerText = `TOPIC 0${idx + 1}`;
+      btn.onclick = () => {
+        if (t.unlocked) {
+          currentTopicIdx = idx;
+          currentQuizSubIdx = 0;
+          currentFlashIdx = 0;
+          if (currentMode === 'review') setMode('quiz');
+          else loadContent();
+        } else {
+          playWrongSound();
+          showFeedback("Schließe zuerst vorherige Module ab!", "wrong");
+        }
+      };
+      grid.appendChild(btn);
+    });
+
+    let totalQuizzes = 9;
+    let passedCount = topics.reduce((acc, top) => acc + top.passedQuizzes.filter(Boolean).length, 0);
+    const progressEl = document.getElementById('progress');
+    if (progressEl) {
+      progressEl.style.width = `${(passedCount / totalQuizzes) * 100}%`;
+    }
+  }
+
+  function loadContent() {
+    renderGrid();
+    updateAnalyticsDisplay();
+
+    const t = topics[currentTopicIdx];
+    const tagArea = document.getElementById('tag-area');
+    const title = document.getElementById('title');
+    const body = document.getElementById('body-text');
+    const interaction = document.getElementById('interaction-area');
+    const feedbackEl = document.getElementById('feedback');
+
+    if (feedbackEl) feedbackEl.innerText = '';
+    if (!tagArea || !title || !body || !interaction) return;
+
+    if (currentMode === 'review') {
+      renderAIReviewModule();
+      return;
+    }
+
+    if (currentMode === 'study') {
+      tagArea.innerHTML = `<span class="badge badge-study">STUDY MATERIAL</span>`;
+      title.innerText = `${t.title} // LEKTION`;
+      body.innerHTML = `${t.studyText} ${t.svgDiagram}<br><br><span style="color:var(--success-green); font-weight:bold;">Kompakte Zusammenfassung:</span><br>${t.summary}`;
+      
+      interaction.innerHTML = `
+        <button class="action-btn" onclick="setMode('flash')">CARDS LERNEN (&rarr;)</button>
+        <button class="action-btn secondary" onclick="setMode('quiz')">DIREKT ZUM QUIZ</button>
+      `;
+    } 
+    else if (currentMode === 'flash') {
+      tagArea.innerHTML = `<span class="badge badge-flash">FLASHCARD 0${currentFlashIdx + 1} / 03</span>`;
+      title.innerText = `${t.title} // CARDS`;
+      body.innerHTML = `Klicke auf die Karte, um die Definition einzusehen:`;
+
+      const cardData = t.flashcards[currentFlashIdx];
+      interaction.innerHTML = `
+        <div class="flashcard-container" onclick="this.querySelector('.flashcard').classList.toggle('flipped')">
+          <div class="flashcard">
+            <div class="card-face card-front">
+              ${cardData.term}
+              <div class="card-hint">[ Klick zum Umdrehen ]</div>
+            </div>
+            <div class="card-face card-back">
+              ${cardData.def}
+            </div>
+          </div>
+        </div>
+        <button class="action-btn" onclick="nextCard()">NÄCHSTE KARTE (&rarr;)</button>
+      `;
+    }
+    else {
+      if (currentQuizSubIdx < 3) {
+        let qData = t.quizzes[currentQuizSubIdx];
+        tagArea.innerHTML = `<span class="badge badge-quiz">QUIZ 0${currentQuizSubIdx + 1} VON 03</span>`;
+        title.innerText = `${t.title} // FRAGE 0${currentQuizSubIdx + 1}`;
+        body.innerText = qData.q;
+
+        interaction.innerHTML = '';
+        qData.opts.forEach((opt, oIdx) => {
+          let b = document.createElement('button');
+          b.className = 'opt-btn';
+          b.innerText = `${String.fromCharCode(65 + oIdx)}) ${opt}`;
+          b.onclick = () => handleAnswer(oIdx);
+          interaction.appendChild(b);
+        });
+      } else {
+        tagArea.innerHTML = `<span class="badge badge-summary">ZUSAMMENFASSUNG</span>`;
+        title.innerText = `${t.title} // RECAP`;
+        body.innerHTML = t.summary;
+
+        if (currentTopicIdx + 1 < topics.length) {
+          interaction.innerHTML = `<button class="action-btn" onclick="nextTopic()">NÄCHSTES TOPIC FREISCHALTEN (&rarr;)</button>`;
+        } else {
+          interaction.innerHTML = `
+            <div style="text-align:center; color:var(--success-green); font-weight:bold; font-family:var(--font-code); margin-bottom:8px;">ALLE MODULE ERFOLGREICH BEENDET!</div>
+            <button class="action-btn purple" onclick="setMode('review')">PERSÖNLICHE AI-REVIEW STARTEN 🤖</button>
+          `;
+        }
+      }
+    }
+  }
+
+  function renderAIReviewModule() {
+    const tagArea = document.getElementById('tag-area');
+    const title = document.getElementById('title');
+    const body = document.getElementById('body-text');
+    const interaction = document.getElementById('interaction-area');
+
+    tagArea.innerHTML = `<span class="badge badge-review">AI DIAGNOSTIC CONSOLE</span>`;
+    title.innerText = `PERSONALISIERTE FEHLERANALYSE & EVALUATION`;
+
+    if (!stats.flaws || stats.flaws.length === 0) {
+      body.innerHTML = `
+        <div class="ai-console">
+          <div class="ai-header">🤖 CYTOS_AI // FEHLERANALYSE STATUS</div>
+          <div style="color:var(--success-green); font-size:0.85rem; padding:10px 0;">
+            ✓ KEINE SCHWACHSTELLEN GEFUNDEN! Du hast alle Fragen ohne Fehlversuche gemeistert. Perfektes Verständnis der Histologie und Endokrinologie.
+          </div>
+        </div>
+      `;
+      interaction.innerHTML = `<button class="action-btn secondary" onclick="setMode('study')">ZURÜCK ZUM STUDIUM</button>`;
+      return;
+    }
+
+    const uniqueFlaws = [];
+    const seen = new Set();
+    stats.flaws.forEach(f => {
+      if (f && f.qId && !seen.has(f.qId)) {
+        seen.add(f.qId);
+        uniqueFlaws.push(f);
+      }
+    });
+
+    let flawsHTML = uniqueFlaws.map((f, i) => `
+      <div class="mistake-card">
+        <div class="mistake-title">⚠️ SCHWACHSTELLE #${i+1}: ${f.topicTitle || 'Allgemein'}</div>
+        <div style="color:var(--text-main); font-weight:600;">Frage: "${f.question}"</div>
+        <div style="color:var(--alert-red); margin-top:2px;">Dein Irrtum: Choice "${f.userChoice}"</div>
+        <div class="mistake-fix">➔ Richtig: "${f.correctChoice}"</div>
+        <div style="margin-top:6px; color:var(--text-muted); font-size:0.75rem; border-top:1px dashed var(--dim-border); padding-top:4px;">
+          <strong>AI-Erklärung:</strong> ${f.explanation}
+        </div>
+      </div>
+    `).join('');
+
+    let aiAdvise = "";
+    if (uniqueFlaws.length >= 3) {
+      aiAdvise = "Du zeigst noch Verwechslungen bei Fachbegriffen und Steuerungskreisen. Fokussiere dich auf die präzise Unterscheidung zwischen Hormonen (FSH/LH) und Zelltypen.";
+    } else if (uniqueFlaws.find(f => f.qId && f.qId.includes('t3'))) {
+      aiAdvise = "Hauptsächlicher Orientierungsbedarf liegt im hormonellen Regelkreis (Topic 3). Wiederhole die Rückkopplungsmechanismen von Testosteron.";
+    } else {
+      aiAdvise = "Sehr solide Gesamtleistung! Ein paar Detailunreinheiten bei histologischen Bezeichnungen wurden identifiziert. Nachfolgend sind deine Korrekturen.";
+    }
+
+    body.innerHTML = `
+      <div class="ai-console">
+        <div class="ai-header">🤖 CYTOS_AI // DIAGNOSE-BERICHT (${uniqueFlaws.length} FLAWS DETECTED)</div>
+        <div class="ai-recommendation" style="margin-bottom:12px;">
+          <strong>AI Evaluator:</strong> "${aiAdvise}"
+        </div>
+        ${flawsHTML}
+      </div>
+    `;
+
+    interaction.innerHTML = `
+      <button class="action-btn purple" onclick="resetFlawsAndRetry()">FEHLER ZURÜCKSETZEN & NEU STARTEN</button>
+      <button class="action-btn secondary" onclick="setMode('study')">ZURÜCK ZUM GEWÖHNLICHEN LERNEN</button>
+    `;
+  }
+
+  function resetFlawsAndRetry() {
+    stats.flaws = [];
+    saveStats();
+    currentTopicIdx = 0;
+    setMode('study');
+  }
+
+  function nextCard() {
+    const t = topics[currentTopicIdx];
+    if (currentFlashIdx + 1 < t.flashcards.length) {
+      currentFlashIdx++;
+      loadContent();
+    } else {
+      setMode('quiz');
+    }
+  }
+
+  function handleAnswer(selected) {
+    const t = topics[currentTopicIdx];
+    const qData = t.quizzes[currentQuizSubIdx];
+
+    stats.total++;
+
+    if (selected === qData.correct) {
+      playRightSound();
+      stats.correct++;
+      stats.streak++;
+      t.passedQuizzes[currentQuizSubIdx] = true;
+      showFeedback(`> ${qData.info}`, "correct");
+      
+      saveStats();
+
+      setTimeout(() => {
+        currentQuizSubIdx++;
+        loadContent();
+      }, 1200);
+    } else {
+      playWrongSound();
+      stats.streak = 0;
+
+      if (!stats.flaws) stats.flaws = [];
+      stats.flaws.push({
+        qId: qData.id,
+        topicTitle: t.title,
+        question: qData.q,
+        userChoice: qData.opts[selected],
+        correctChoice: qData.opts[qData.correct],
+        explanation: qData.explanation
+      });
+
+      saveStats();
+      showFeedback("> FALSCH. Der Fehler wurde geloggt!", "wrong");
+    }
+  }
+
+  function nextTopic() {
+    if (currentTopicIdx + 1 < topics.length) {
+      topics[currentTopicIdx + 1].unlocked = true;
+      currentTopicIdx++;
+      currentQuizSubIdx = 0;
+      setMode('study');
+    }
+  }
+
+  function showFeedback(msg, type) {
+    const fb = document.getElementById('feedback');
+    if (fb) {
+      fb.className = `feedback ${type}`;
+      fb.innerText = msg;
+    }
+  }
+
+  // Guaranteed execution after DOM load
+  window.addEventListener('DOMContentLoaded', () => {
+    loadContent();
+  });
+  
+</script>
+</body>
+</html>
