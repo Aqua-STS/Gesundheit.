@@ -39,7 +39,11 @@
 
         .study-block { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 12px; font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
         .study-heading { font-family: var(--font-mono); color: var(--accent-blue); font-size: 12px; font-weight: bold; margin-bottom: 6px; }
-        .svg-diagram { width: 100%; max-height: 160px; margin-top: 10px; background: rgba(255,255,255,0.02); border-radius: 4px; border: 1px dashed var(--border-color); display: flex; justify-content: center; align-items: center; padding: 8px; }
+        
+        /* Image Container Styling */
+        .img-container { width: 100%; max-height: 240px; margin-top: 10px; overflow: hidden; border-radius: 4px; border: 1px solid var(--border-color); display: flex; justify-content: center; background: #000; }
+        .img-container img { width: 100%; height: 100%; object-fit: contain; opacity: 0.9; transition: opacity 0.2s; }
+        .img-container img:hover { opacity: 1; }
 
         .card-container { perspective: 1000px; width: 100%; height: 220px; cursor: pointer; }
         .card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.4s; transform-style: preserve-3d; }
@@ -54,6 +58,9 @@
         .quiz-option { background: var(--bg-color); border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: border-color 0.2s; margin-top: 8px; }
         .quiz-option.correct { border-color: var(--accent-green); background: rgba(16, 185, 129, 0.15); }
         .quiz-option.incorrect { border-color: var(--accent-red); background: rgba(239, 68, 68, 0.15); }
+
+        .quiz-completed { text-align: center; padding: 30px 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; height: 100%; }
+        .quiz-completed h2 { color: var(--accent-green); font-family: var(--font-mono); font-size: 18px; }
 
         .doccheck-card { background: var(--bg-color); border: 1px solid var(--border-color); border-left: 3px solid var(--accent-blue); padding: 12px; border-radius: 4px; margin-bottom: 10px; }
         .doccheck-term { font-family: var(--font-mono); font-size: 14px; font-weight: bold; color: var(--accent-blue); margin-bottom: 4px; }
@@ -112,13 +119,22 @@
         <div id="view-quiz" class="view-panel">
             <div class="quiz-stats">
                 <div>SCORE: <span class="stat-val" id="quiz-score">0</span></div>
-                <div>STREAK: <span class="stat-val" id="quiz-streak">0</span>x</div>
+                <div>PROGRESS: <span class="stat-val" id="quiz-progress">0/0</span></div>
                 <div>HIGH: <span class="stat-val" id="quiz-highscore">0</span></div>
             </div>
-            <div class="study-block" style="margin-top: 10px;">
-                <div id="quiz-question" style="font-weight: bold; font-size: 14px;">---</div>
+            <div id="quiz-body" style="display: flex; flex-direction: column; flex: 1;">
+                <div class="study-block" style="margin-top: 10px;">
+                    <div id="quiz-question-wrapper">
+                        <div id="quiz-question" style="font-weight: bold; font-size: 14px;">---</div>
+                    </div>
+                </div>
+                <div id="quiz-options"></div>
             </div>
-            <div id="quiz-options"></div>
+            <div id="quiz-finished" class="quiz-completed" style="display: none;">
+                <h2>RUBRIK ABGESCHLOSSEN</h2>
+                <p id="quiz-summary-text" style="font-size: 13px; color: var(--text-secondary);">Alle Fragen dieser Rubrik wurden beantwortet.</p>
+                <button class="btn-action" onclick="resetCurrentQuizTopic()">NEU STARTEN (Mischung)</button>
+            </div>
         </div>
 
         <!-- DOCCHECK VIEW -->
@@ -177,14 +193,8 @@
                         <div class="study-block">
                             <div class="study-heading">HODEN (TESTIS) & AUFBAU</div>
                             Der Hoden ist die männliche Keimdrüse im Hodensack (Skrotum). Er erfüllt zwei wesentliche Funktionen: die Bildung männlicher Keimzellen (Spermien) und die Produktion von Testosteron. Der Hoden ist von einer Bindegewebskapsel (Tunica albuginea) umgeben. Von ihr ziehen Bindegewebssepten (Septula testis) ins Innere und unterteilen den Hoden in ca. 250 Hodenläppchen (Lobuli testis).
-                            <div class="svg-diagram">
-                                <svg width="240" height="100" viewBox="0 0 240 100">
-                                    <ellipse cx="100" cy="50" rx="60" ry="40" fill="none" stroke="#3b82f6" stroke-width="2"/>
-                                    <path d="M 60,50 Q 100,20 140,50 T 60,50" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-dasharray="3,3"/>
-                                    <path d="M 140,25 C 170,25 170,75 140,75" fill="none" stroke="#10b981" stroke-width="3"/>
-                                    <text x="75" y="53" fill="#9ca3af" font-size="10" font-family="monospace">Lobuli Testis</text>
-                                    <text x="150" y="90" fill="#10b981" font-size="10" font-family="monospace">Epididymis</text>
-                                </svg>
+                            <div class="img-container">
+                                <img src="https://www.medi-karriere.de/wp-content/uploads/2024/07/MA%C2%A4nnliche-Geschlechtsorgane-Grafik.jpg" alt="Männliche Geschlechtsorgane Grafik">
                             </div>
                         </div>
                         <div class="study-block">
@@ -205,6 +215,7 @@
                     quizzes: [
                         {
                             q: "Um wie viel Grad liegt die Temperatur im Skrotum unter der Körpertemperatur?",
+                            img: "https://cdn.shopify.com/s/files/1/0010/8688/1853/files/effects-of-heat-on-sperm_large.png?v=1538534542",
                             options: ["1 bis 2 °C", "2 bis 4 °C", "5 bis 6 °C", "0.5 bis 1 °C"],
                             correct: 1,
                             explain: "Laut Poster liegt die optimale Temperatur im Skrotum genau 2 bis 4 °C unter der normalen Körpertemperatur."
@@ -229,18 +240,13 @@
                         <div class="study-block">
                             <div class="study-heading">SAMENKANÄLCHEN (TUBULI SEMINIFERI)</div>
                             Die Samenkanälchen sind vielfach gewundene Kanäle innerhalb der Hodenläppchen. Sie sind der meiste und wichtigste Ort der Spermatogenese, also der Bildung und Entwicklung der männlichen Keimzellen. In ihrer Wand befinden sich verschiedene Entwicklungsstadien der Keimzellen sowie Sertoli-Zellen.
+                            <div class="img-container">
+                                <img src="https://embryology.med.unsw.edu.au/embryology/images/a/a9/Testis_histology_2.jpg" alt="Testis Histology Slide">
+                            </div>
                         </div>
                         <div class="study-block">
                             <div class="study-heading">SERTOLI-ZELLEN & LEYDIG-ZELLEN</div>
                             Die Sertoli-Zellen liegen innerhalb der Samenkanälchen und dienen als Ammenzellen zur Unterstützung und Ernährung der Keimzellen. Zwischen den Samenkanälchen liegen im Bindegewebe die hormonproduzierenden Leydig-Zellen, welche für die endokrine Funktion zuständig sind und das Sexualhormon Testosteron produzieren.
-                            <div class="svg-diagram">
-                                <svg width="200" height="90" viewBox="0 0 200 90">
-                                    <circle cx="60" cy="45" r="35" fill="none" stroke="#3b82f6" stroke-width="2"/>
-                                    <circle cx="140" cy="45" r="35" fill="none" stroke="#3b82f6" stroke-width="2"/>
-                                    <circle cx="100" cy="45" r="8" fill="#ef4444"/>
-                                    <text x="68" y="88" fill="#ef4444" font-size="9" font-family="monospace">Leydig (Testosteron)</text>
-                                </svg>
-                            </div>
                         </div>
                         <div class="study-block">
                             <div class="study-heading">ABFLUSS UND NETZWERK</div>
@@ -280,6 +286,9 @@
                         <div class="study-block">
                             <div class="study-heading">SPERMATOGENESE & MEIOSE</div>
                             Die Spermatogenese ist die Bildung und Reifung von Spermien in den Hoden. Der Prozess beginnt mit den diploiden Spermatogonien (2n, 46 Chromosomen), die sich durch Mitose vervielfältigen. Daraus entstehen primäre Spermatozyten. Diese durchlaufen die Meiose I. Dabei wird der Chromosomensatz halbiert und es entstehen sekundäre Spermatozyten mit haploidem Satz (n, 23 Chromosomen). In der Meiose II werden die haploiden wieder halbiert und es entstehen 4 haploide Spermatiden.
+                            <div class="img-container">
+                                <img src="https://www.invitra.de/wp-content/uploads/2019/09/meiose.png" alt="Meiose Ablauf Diagramm">
+                            </div>
                         </div>
                         <div class="study-block">
                             <div class="study-heading">SPERMIOGENESE</div>
@@ -288,6 +297,9 @@
                         <div class="study-block">
                             <div class="study-heading">HORMONELLE STEUERUNG</div>
                             Die Testosteronsynthese wird durch das luteinisierende Hormon (LH) aus der Hirnanhangsdrüse in den Leydig-Zellen der Hoden stimuliert. Der Hypothalamus setzt Gonadoliberin frei, welches die Hypophyse zur Ausschüttung von LH anregt. Ein steigender Testosteronspiegel blockiert über eine negative Rückkopplung die weitere Gonadoliberin-Freisetzung, um extreme hormonelle Abweichungen zu verhindern.
+                            <div class="img-container">
+                                <img src="https://www.medi-karriere.de/wp-content/uploads/2025/04/Hypothalamus-Hypophysen-Achse-2-Grafik.jpg" alt="Hypothalamus Hypophysen Achse Grafik">
+                            </div>
                         </div>
                     `,
                     cards: [
@@ -344,7 +356,31 @@
         let streakCount = 0;
         let sessionScore = 0;
         let highScore = parseInt(localStorage.getItem('cytos_highscore') || '0', 10);
+        
+        // Quiz Progression State
+        let currentQuizQueue = [];
         let activeQuizIdx = 0;
+        let topicCorrectAnswers = 0;
+
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function initQuizForTopic() {
+            currentQuizQueue = shuffleArray(appData.topics[currentTopic].quizzes);
+            activeQuizIdx = 0;
+            topicCorrectAnswers = 0;
+        }
+
+        function resetCurrentQuizTopic() {
+            initQuizForTopic();
+            renderQuiz();
+        }
 
         function switchMode(mode) {
             currentMode = mode;
@@ -372,7 +408,7 @@
                 btn.classList.toggle('active', i === index);
             });
             cardIndex = 0;
-            activeQuizIdx = 0;
+            initQuizForTopic();
             renderCurrentView();
         }
 
@@ -387,6 +423,9 @@
                 document.getElementById('flashcard').classList.remove('flipped');
             } 
             else if (currentMode === 'quiz') {
+                if (currentQuizQueue.length === 0) {
+                    initQuizForTopic();
+                }
                 renderQuiz();
             } 
             else if (currentMode === 'doccheck') {
@@ -409,18 +448,46 @@
 
         function updateQuizStats() {
             const scoreElem = document.getElementById('quiz-score');
-            const streakElem = document.getElementById('quiz-streak');
+            const progressElem = document.getElementById('quiz-progress');
             const highscoreElem = document.getElementById('quiz-highscore');
             
             if (scoreElem) scoreElem.innerText = sessionScore;
-            if (streakElem) streakElem.innerText = streakCount;
+            if (progressElem) progressElem.innerText = `${activeQuizIdx}/${currentQuizQueue.length}`;
             if (highscoreElem) highscoreElem.innerText = highScore;
         }
 
         function renderQuiz() {
             updateQuizStats();
-            const quiz = appData.topics[currentTopic].quizzes[activeQuizIdx];
-            document.getElementById('quiz-question').innerText = quiz.q;
+            
+            const quizBody = document.getElementById('quiz-body');
+            const quizFinished = document.getElementById('quiz-finished');
+
+            if (activeQuizIdx >= currentQuizQueue.length) {
+                quizBody.style.display = 'none';
+                quizFinished.style.display = 'flex';
+                
+                const percent = Math.round((topicCorrectAnswers / currentQuizQueue.length) * 100);
+                document.getElementById('quiz-summary-text').innerText = 
+                    `Ergebnis: ${topicCorrectAnswers} von ${currentQuizQueue.length} richtig (${percent}%).`;
+                return;
+            }
+
+            quizBody.style.display = 'flex';
+            quizFinished.style.display = 'none';
+
+            const quiz = currentQuizQueue[activeQuizIdx];
+            
+            // Dynamically render question image if specified
+            const imageHtml = quiz.img ? `
+                <div class="img-container" style="margin-bottom: 10px;">
+                    <img src="${quiz.img}" alt="Quiz Diagramm">
+                </div>
+            ` : '';
+
+            document.getElementById('quiz-question-wrapper').innerHTML = `
+                ${imageHtml}
+                <div id="quiz-question" style="font-weight: bold; font-size: 14px;">${quiz.q}</div>
+            `;
             
             const optionsContainer = document.getElementById('quiz-options');
             optionsContainer.innerHTML = '';
@@ -441,6 +508,7 @@
             if (selected === correct) {
                 element.classList.add('correct');
                 streakCount++;
+                topicCorrectAnswers++;
                 sessionScore += 100 * streakCount;
                 
                 if (sessionScore > highScore) {
@@ -462,13 +530,11 @@
                 
                 streakCount = 0;
                 playFailureSound();
-                logError(appData.topics[currentTopic].quizzes[activeQuizIdx].q, explain);
+                logError(currentQuizQueue[activeQuizIdx].q, explain);
             }
 
-            updateQuizStats();
-
             setTimeout(() => {
-                activeQuizIdx = (activeQuizIdx + 1) % appData.topics[currentTopic].quizzes.length;
+                activeQuizIdx++;
                 renderQuiz();
             }, 1200);
         }
@@ -516,6 +582,7 @@
             renderLogs();
         }
 
+        initQuizForTopic();
         renderCurrentView();
     </script>
 </body>
